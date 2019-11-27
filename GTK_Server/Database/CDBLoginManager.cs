@@ -1,0 +1,95 @@
+﻿using System;
+using System.IO;
+using MySql.Data.MySqlClient;
+
+using GTK_Demo_Packet;
+
+namespace GTK_Server.Database
+{
+    public class CDBLoginManager : CDBManager
+    {
+        private Login User;
+        private LoginResult Result { get; set;}
+
+        private new static string DBInfo = "Server=127.0.0.1;Database=DemoDB;Uid=root;Pwd=admin;";
+
+        public CDBLoginManager(Login User) : base(DBInfo)
+        {
+            this.User = User;
+        }
+
+        private bool invalidIDorPass(string ID, string Pass)
+        {
+            MySqlCommand cmd;
+
+            DB_conn = new MySqlConnection(DBInfo);
+            DB_conn.Open();
+
+            string s = "SELECT * FROM USER WHERE ID = @ID;";
+            cmd = new MySqlCommand(s, DB_conn);
+            cmd.Parameters.AddWithValue("@ID", ID);
+
+            MySqlDataReader dr = cmd.ExecuteReader();
+
+            if(!dr.Read())
+            {
+                dr.Close();
+                DB_conn.Close();
+                return false;
+            }
+            if(Pass.CompareTo(dr[1].ToString())!=0)
+            {
+                dr.Close();
+                DB_conn.Close();
+                return false;
+            }
+
+            dr.Close();
+            DB_conn.Close();
+            return true;
+        }
+
+        private LoginResult DuplicatedLogin()
+        {
+            try
+            {
+                MySqlCommand cmd;
+
+                DB_conn = new MySqlConnection(DBInfo);
+                DB_conn.Open();
+
+                string s = "INSERT INTO USER_MANAGEMENT(ID,IP,PORT)" + "VALUES(@ID,@IP,@PORT);";
+                cmd = new MySqlCommand(s, DB_conn);
+                cmd.Parameters.AddWithValue("@ID", this.User.id_str);
+                cmd.Parameters.AddWithValue("@IP", this.User.ip_str);
+                cmd.Parameters.AddWithValue("@PORT", this.User.port_str);
+                cmd.ExecuteNonQuery();
+
+                DB_conn.Close();
+                DM_setLog("User logined", this.User.id_str);
+                Result.result = true;
+                Result.msg = "성공";
+                return Result;
+            }
+            catch(Exception e)
+            {
+                DM_setLog(e.ToString());
+                DB_conn.Close();
+                Result.result = false;
+                Result.msg = "중복된 접속입니다";
+                return Result;
+            }
+        }
+
+        public LoginResult GetResult()
+        {
+            if (!invalidIDorPass(User.id_str, User.pw_str))
+            {
+                Result.result = false;
+                Result.msg = "아이디나 비밀번호가 맞지 않습니다";
+                return Result;
+            }
+            return DuplicatedLogin();
+        }
+    }
+}

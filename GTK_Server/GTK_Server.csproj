@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="8.0.18" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Database\" />
+    <Folder Include="Network\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GTK_Demo_Packet">
+      <HintPath>..\..\GTK_Demo_Packet\GTK_Demo_Packet\bin\Debug\GTK_Demo_Packet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
