@@ -11,11 +11,16 @@ namespace GTK_Server.Database
         private Login User;
         private LoginResult Result { get; set;}
 
-        private new static string DBInfo = "Server=127.0.0.1;Database=DemoDB;Uid=root;Pwd=admin;";
+        private static string DBInfo = "Server=127.0.0.1;Database=DemoDB;Uid=root;Pwd=admin;";
 
         public CDBLoginManager(Login User) : base(DBInfo)
         {
             this.User = User;
+        }
+
+        public CDBLoginManager(byte[] User) : base(DBInfo)
+        {
+            this.User = (Login)Packet.Deserialize(User);
         }
 
         private bool invalidIDorPass(string ID, string Pass)
@@ -49,7 +54,7 @@ namespace GTK_Server.Database
             return true;
         }
 
-        private LoginResult DuplicatedLogin()
+        private void DuplicatedLogin()
         {
             try
             {
@@ -69,7 +74,7 @@ namespace GTK_Server.Database
                 DM_setLog("User logined", this.User.id_str);
                 Result.result = true;
                 Result.msg = "성공";
-                return Result;
+                return ;
             }
             catch(Exception e)
             {
@@ -77,19 +82,31 @@ namespace GTK_Server.Database
                 DB_conn.Close();
                 Result.result = false;
                 Result.msg = "중복된 접속입니다";
-                return Result;
+                return ;
             }
         }
 
-        public LoginResult GetResult()
+        private void SetResult()
         {
             if (!invalidIDorPass(User.id_str, User.pw_str))
             {
                 Result.result = false;
                 Result.msg = "아이디나 비밀번호가 맞지 않습니다";
-                return Result;
+                return;
             }
-            return DuplicatedLogin();
+            DuplicatedLogin();
+        }
+
+        public LoginResult GetResultByLoginResult()
+        {
+            SetResult();
+            return Result;
+        }
+
+        public byte[] GetResultByByte()
+        {
+            SetResult();
+            return Packet.Serialize(Result);
         }
     }
 }

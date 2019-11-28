@@ -8,7 +8,8 @@
     ".NETCoreApp,Version=v3.0": {
       "GTK_Server/1.0.0": {
         "dependencies": {
-          "MySql.Data": "8.0.18"
+          "MySql.Data": "8.0.18",
+          "GTK_Demo_Packet": "1.0.7270.31469"
         },
         "runtime": {
           "GTK_Server.dll": {}
@@ -954,6 +955,14 @@
             "fileVersion": "1.0.24212.1"
           }
         }
+      },
+      "GTK_Demo_Packet/1.0.7270.31469": {
+        "runtime": {
+          "GTK_Demo_Packet.dll": {
+            "assemblyVersion": "1.0.7270.31469",
+            "fileVersion": "1.0.7270.31469"
+          }
+        }
       }
     }
   },
@@ -1620,6 +1629,11 @@
       "sha512": "sha512-Zm2BdeanuncYs3NhCj4c9e1x3EXFzFBVv2wPEc/Dj4ZbI9R8ecLSR5frAsx4zJCPBtKQreQ7Q/KxJEohJZbfzA==",
       "path": "system.xml.xpath.xmldocument/4.0.1",
       "hashPath": "system.xml.xpath.xmldocument.4.0.1.nupkg.sha512"
+    },
+    "GTK_Demo_Packet/1.0.7270.31469": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

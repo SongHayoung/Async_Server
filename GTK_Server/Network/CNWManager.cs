@@ -2,6 +2,8 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
+
+using GTK_Server.Handler;
 using GTK_Demo_Packet;
 
 namespace GTK_Server.Network
@@ -11,16 +13,16 @@ namespace GTK_Server.Network
         private const int Port = 5011;
         private const int Buf_Size = 1024 * 4;
 
-        private List<Socket> Clients;
-        private Socket Server;
+        private static List<Socket> Clients = new List<Socket>();
+        private static Socket Server;
 
         public CNWManager()
         {
-            Clients = new List<Socket>();
         }
 
-        public void Run()
+        public static void Run()
         {
+            Console.WriteLine("Netwrok Manager on Active");
             Server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint EndPoint = new IPEndPoint(IPAddress.Any, Port);
             Server.Bind(EndPoint);
@@ -29,9 +31,35 @@ namespace GTK_Server.Network
             SocketAsyncEventArgs Asynce = new SocketAsyncEventArgs();
             Asynce.Completed += new EventHandler<SocketAsyncEventArgs>(Accept);
             Server.AcceptAsync(Asynce);
+            Handling();
+            Console.WriteLine("Network Manager Join");
         }
 
-        private void Accept(object sender, SocketAsyncEventArgs e)
+        private static void Handling()
+        {
+            CPacketFactory PacketFactory = CPacketFactory.GetCPacketFactory();
+            while(Program.IsRunning())
+            {
+                foreach(Socket _Client in Clients)
+                {
+                    if(!_Client.Connected)
+                    {
+                        Clients.Remove(_Client);
+                    }
+                }
+                CDataSet Item = PacketFactory.GetSendBuffer();
+                if (Item == null)
+                    continue;
+                Socket Client = Item._socket;
+                byte[] buffer = Item._buffer;
+                SocketAsyncEventArgs Asynce = new SocketAsyncEventArgs();
+                Asynce.SetBuffer(buffer, 0, buffer.Length);
+                Asynce.Completed += new EventHandler<SocketAsyncEventArgs>(Send);
+                Client.SendAsync(Asynce);
+            }
+        }
+
+        private static void Accept(object sender, SocketAsyncEventArgs e)
         {
             Socket Client = e.AcceptSocket;
 
@@ -54,21 +82,20 @@ namespace GTK_Server.Network
         }
 
 
-        private void Recieve(object sender, SocketAsyncEventArgs e)
+        private static void Recieve(object sender, SocketAsyncEventArgs e)
         {
             Socket Client = (Socket)sender;
             if (Client.Connected)
             {
-                Client.Receive(e.Buffer);
                 byte[] buffer = e.Buffer;
 
-                CNWPacketHandler PacketHandler = new CNWPacketHandler(buffer);
-                Array.Copy(PacketHandler.GetSendBuffer(), 0, buffer, 0, PacketHandler.GetSendBufferLength());
+                CPacketFactory PacketFactory = CPacketFactory.GetCPacketFactory();
+                PacketFactory.SetRecvBuffer(Client, buffer);
 
                 SocketAsyncEventArgs Asynce = new SocketAsyncEventArgs();
                 Asynce.SetBuffer(buffer, 0, Buf_Size);
-                Asynce.Completed += new EventHandler<SocketAsyncEventArgs>(Send);
-                Client.SendAsync(Asynce);
+                Asynce.Completed += new EventHandler<SocketAsyncEventArgs>(Recieve);
+                Client.ReceiveAsync(Asynce);
             }
             else
             {
@@ -76,19 +103,9 @@ namespace GTK_Server.Network
             }
         }
 
-        private void Send(object sender, SocketAsyncEventArgs e)
+        private static void Send(object sender, SocketAsyncEventArgs e)
         {
-            Socket Client = (Socket)sender;
-            if(Client.Connected)
-            {
-                Client.Send(e.Buffer);
-                byte[] buffer = e.Buffer;
-
-                SocketAsyncEventArgs Asynce = new SocketAsyncEventArgs();
-                Asynce.SetBuffer(buffer, 0, Buf_Size);
-                Asynce.Completed += new EventHandler<SocketAsyncEventArgs>(Recieve);
-                Client.ReceiveAsync(Asynce);
-            }
+            Console.WriteLine("Packet Sended");
         }
 
     }

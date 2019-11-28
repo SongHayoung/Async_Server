@@ -2,33 +2,69 @@
 using System.IO;
 using MySql.Data.MySqlClient;
 
+using GTK_Server.Handler;
+using GTK_Demo_Packet;
 namespace GTK_Server.Database
 {
     public class CDBManager
     {
-        public string DBInfo = "Server=127.0.0.1;Uid=root;Pwd=admin;";
-        public MySqlConnection DB_conn;
-        public CDBManager()
-        {
-            DB_conn = new MySqlConnection(DBInfo);
-            DB_Setting();
-        }
+        private static string DBInfo = "Server=127.0.0.1;Uid=root;Pwd=admin;";
+        private const int Buf_Size = 1024 * 4;
+        protected static MySqlConnection DB_conn;
+
+        public CDBManager() { }
 
         public CDBManager(string dbinfo)
         {
             DB_conn = new MySqlConnection(dbinfo);
         }
 
-        public void DM_setLog(string str1)
+        public static void Run()
+        {
+            Console.WriteLine("Database Manager on Active");
+            DB_conn = new MySqlConnection(DBInfo);
+            CPacketFactory PacketFactory = CPacketFactory.GetCPacketFactory();
+            DB_Setting();
+            Handling(PacketFactory);
+            Console.WriteLine("Database Manager Join");
+        }
+
+        public static void Handling(CPacketFactory PacketFactory)
+        {
+            while (Program.IsRunning())
+            {
+                CDataSet Item = PacketFactory.GetDatabaseBuffer();
+                if (Item == null)
+                    continue;
+                CDataSet Result = new CDataSet();
+                Result._socket = Item._socket;
+
+                if (Item._packettype == PacketType.Login)
+                {
+                    CDBLoginManager lgM = new CDBLoginManager(Item._buffer);
+                    Result._buffer = lgM.GetResultByByte();
+                }
+                if (Item._packettype == PacketType.Login_RESULT)
+                {
+                    CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Item._buffer);
+                    Result._buffer = rgM.GetResultByByte();
+                }
+
+                PacketFactory.SetSendBuffer(Result);
+            }
+        }
+
+
+        protected static void DM_setLog(string str1)
         {
             Console.WriteLine("Database Manager : {0}", str1);
         }
-        public void DM_setLog(string str1, string str2)
+        protected static void DM_setLog(string str1, string str2)
         {
             Console.WriteLine("Database Manager : {0} {1}", str1, str2);
         }
 
-        public void DB_Setting()
+        private static void DB_Setting()
         {
             try
             {

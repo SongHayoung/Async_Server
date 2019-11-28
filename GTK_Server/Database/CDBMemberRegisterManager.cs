@@ -11,11 +11,18 @@ namespace GTK_Server.Database
         private MemberRegister NewMember;
         private MemberRegisterResult Result;
 
-        private new const string DBInfo = "Server=127.0.0.1;Database=DemoDB;Uid=root;Pwd=admin;";
+        private const string DBInfo = "Server=127.0.0.1;Database=DemoDB;Uid=root;Pwd=admin;";
 
         public CDBMemberRegisterManager(MemberRegister NewMember) : base(DBInfo)
         {
             NewMember = this.NewMember;
+            Result = new MemberRegisterResult();
+        }
+
+        public CDBMemberRegisterManager(byte[] NewMember) : base(DBInfo)
+        {
+            this.NewMember = (MemberRegister)Packet.Deserialize(NewMember);
+            Result = new MemberRegisterResult();
         }
 
         private bool RegistMember(string ID, string Pass)
@@ -51,7 +58,7 @@ namespace GTK_Server.Database
             return true;
         }
 
-        public MemberRegisterResult GetResult()
+        private void SetResult()
         {
             if (RegistMember(NewMember.id_str, NewMember.pw_str))
             {
@@ -59,8 +66,19 @@ namespace GTK_Server.Database
                 Result.msg = new string("성공");
                 Result.result = true;
             }
-               
+        }
+
+        public MemberRegisterResult GetResultByRegisterResult()
+        {
+            SetResult();
             return Result;
         }
+
+        public byte[] GetResultByByte()
+        {
+            SetResult();
+            return Packet.Serialize(Result);
+        }
+
     }
 }

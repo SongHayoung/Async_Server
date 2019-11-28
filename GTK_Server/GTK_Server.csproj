@@ -11,10 +11,15 @@
   <ItemGroup>
     <Folder Include="Database\" />
     <Folder Include="Network\" />
+    <Folder Include="Handler\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="GTK_Demo_Packet">
       <HintPath>..\..\GTK_Demo_Packet\GTK_Demo_Packet\bin\Debug\GTK_Demo_Packet.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Handler\CNWLoginHandler.cs" />
+    <Compile Remove="Handler\CNWMemberRegisterHandler.cs" />
   </ItemGroup>
 </Project>
