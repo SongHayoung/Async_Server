@@ -1,11 +1,13 @@
 ﻿using System;
-using System.IO;
 using MySql.Data.MySqlClient;
 
 using GTK_Demo_Packet;
 
 namespace GTK_Server.Database
 {
+    /*
+     * this class helping user for login
+     */
     public class CDBLoginManager : CDBManager
     {
         private Login User;
@@ -23,6 +25,9 @@ namespace GTK_Server.Database
             this.User = (Login)Packet.Deserialize(User);
         }
 
+        /*
+         * this function checking invalid ID or Password
+         */
         private bool invalidIDorPass(string ID, string Pass)
         {
             MySqlCommand cmd;
@@ -54,6 +59,9 @@ namespace GTK_Server.Database
             return true;
         }
 
+        /*
+         * this function check user already logined
+         */
         private void DuplicatedLogin()
         {
             try
@@ -86,6 +94,9 @@ namespace GTK_Server.Database
             }
         }
 
+        /*
+         * this function initalize LoginResult member 
+         */
         private void SetResult()
         {
             if (!invalidIDorPass(User.id_str, User.pw_str))
@@ -97,12 +108,18 @@ namespace GTK_Server.Database
             DuplicatedLogin();
         }
 
+        /*
+         * this function returns LoginResult member as LoginResult
+         */
         public LoginResult GetResultByLoginResult()
         {
             SetResult();
             return Result;
         }
 
+        /*
+         * this function return LoginResult member as byte array
+         */
         public byte[] GetResultByByte()
         {
             SetResult();

@@ -4,10 +4,12 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 
 using GTK_Server.Handler;
-using GTK_Demo_Packet;
 
 namespace GTK_Server.Network
 {
+    /*
+     * this class help managing network
+     */
     public class CNWManager
     {
         private const int Port = 5011;
@@ -16,10 +18,12 @@ namespace GTK_Server.Network
         private static List<Socket> Clients = new List<Socket>();
         private static Socket Server;
 
-        public CNWManager()
-        {
-        }
+        public CNWManager() { }
 
+        /* 
+         * Initalize NetworkManager
+         * Running NetworkManager
+         */
         public static void Run()
         {
             Console.WriteLine("Netwrok Manager on Active");
@@ -35,6 +39,9 @@ namespace GTK_Server.Network
             Console.WriteLine("Network Manager Join");
         }
 
+        /*
+         * This function detect dead clients and accur sendAsync
+         */
         private static void Handling()
         {
             CPacketFactory PacketFactory = CPacketFactory.GetCPacketFactory();
@@ -47,18 +54,28 @@ namespace GTK_Server.Network
                         Clients.Remove(_Client);
                     }
                 }
-                CDataSet Item = PacketFactory.GetSendBuffer();
-                if (Item == null)
+                CNetworkSession Session = PacketFactory.GetSendBuffer();
+                if (Session == null)
                     continue;
-                Socket Client = Item._socket;
-                byte[] buffer = Item._buffer;
+                Socket Client = Session._socket;
+                byte[] buffer = Session._buffer;
                 SocketAsyncEventArgs Asynce = new SocketAsyncEventArgs();
                 Asynce.SetBuffer(buffer, 0, buffer.Length);
                 Asynce.Completed += new EventHandler<SocketAsyncEventArgs>(Send);
-                Client.SendAsync(Asynce);
+                try
+                {
+                    Client.SendAsync(Asynce);
+                }
+                catch(SocketException se)
+                {
+                    Console.WriteLine("Socket Exception : " + se.ErrorCode + "Message : " + se.Message);
+                }
             }
         }
 
+        /*
+         * Accept Client Async
+         */
         private static void Accept(object sender, SocketAsyncEventArgs e)
         {
             Socket Client = e.AcceptSocket;
@@ -81,38 +98,46 @@ namespace GTK_Server.Network
             }
         }
 
-
+        /*
+         * this completed event called when socket recieve as Async
+         * this event call Recieve event again
+         */
         private static void Recieve(object sender, SocketAsyncEventArgs e)
         {
             Socket Client = (Socket)sender;
-            if (Client.Connected)
+            bool CompleteAsync = false;
+            if (Client.Connected && e.BytesTransferred>0)
             {
                 byte[] buffer = e.Buffer;
 
                 CPacketFactory PacketFactory = CPacketFactory.GetCPacketFactory();
                 PacketFactory.SetRecvBuffer(Client, buffer);
-
-                SocketAsyncEventArgs Asynce = new SocketAsyncEventArgs();
-                Asynce.SetBuffer(buffer, 0, Buf_Size);
-                Asynce.Completed += new EventHandler<SocketAsyncEventArgs>(Recieve);
-                Client.ReceiveAsync(Asynce);
+                CompleteAsync = Client.ReceiveAsync(e);
+                if (!CompleteAsync)
+                {   //this block is running at ReceiveAsync done as Sync
+                    //need to consider this block to get useful way
+                    //in multi-thread singleton pattern
+                    Client.ReceiveAsync(e);
+                }
             }
             else
+            {
+                Clients.Remove(Client);
+                Client.Close();
+            }
+        }
+
+        /*
+         * Do nothing
+         */
+        private static void Send(object sender, SocketAsyncEventArgs e)
+        {
+            Socket Client = (Socket)sender;
+            if(Client.Connected)
             {
 
             }
         }
 
-        private static void Send(object sender, SocketAsyncEventArgs e)
-        {
-            Console.WriteLine("Packet Sended");
-        }
-
     }
-    /* package has client IP, Port, 
-    public class CNetworkSession   
-    {
-        IPEndPoint EndPoint;
-        
-    }*/
 }

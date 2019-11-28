@@ -5,9 +5,7 @@ namespace GTK_Server.Handler
 {
     public class CPacketHandler
     {
-        public CPacketHandler()
-        {
-        }
+        public CPacketHandler() { }
 
         public static void Run()
         {
@@ -21,13 +19,13 @@ namespace GTK_Server.Handler
         {
             while (Program.IsRunning())
             {
-                CDataSet Item = PacketFactory.GetRecvBuffer();
-                if (Item == null)
+                CNetworkSession Session = PacketFactory.GetRecvBuffer();
+                if (Session == null)
                     continue;
 
-                if (Item._packettype == PacketType.Login || Item._packettype == PacketType.Member_REGISTER)
+                if (Session._packettype == PacketType.Login || Session._packettype == PacketType.Member_REGISTER)
                 {
-                    PacketFactory.SetDatabseBuffer(Item);
+                    PacketFactory.SetDatabseBuffer(Session);
                 }
             }
         }

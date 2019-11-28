@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Collections.Generic;
 using System.Net.Sockets;
-using GTK_Demo_Packet;
 
 namespace GTK_Server.Handler
 {
     public class CPacketFactory
     {
         private static CPacketFactory PacketFactory = new CPacketFactory();
-        private Stack<CDataSet> Recv_buffer = new Stack<CDataSet>();
-        private Stack<CDataSet> Send_buffer = new Stack<CDataSet>();
-        private Stack<CDataSet> Database_Buffer = new Stack<CDataSet>();
+        private Stack<CNetworkSession> Recv_buffer = new Stack<CNetworkSession>();
+        private Stack<CNetworkSession> Send_buffer = new Stack<CNetworkSession>();
+        private Stack<CNetworkSession> Database_Buffer = new Stack<CNetworkSession>();
 
         private static object Recv_Lock = new object();
         private static object Send_Lock = new object();
@@ -21,14 +18,20 @@ namespace GTK_Server.Handler
 
         private CPacketFactory() { }
 
+        /*
+         * Return PacketFactory
+         */
         public static CPacketFactory GetCPacketFactory()
         {
             return PacketFactory;
         }
 
-        public bool SetRecvBuffer(Socket socket, byte[] Item)
+        /*
+         * set Session at receive buffer
+         */
+        public bool SetRecvBuffer(Socket socket, byte[] buffer)
         {
-            CDataSet Recv = new CDataSet(socket, Item);
+            CNetworkSession Recv = new CNetworkSession(socket, buffer);
             lock (Recv_Lock)
             {
                 Recv_buffer.Push(Recv);
@@ -36,73 +39,88 @@ namespace GTK_Server.Handler
             return true;
         }
 
-        public CDataSet GetRecvBuffer()
+        /*
+         * get Session from receive buffer
+         */
+        public CNetworkSession GetRecvBuffer()
         {
-            CDataSet Item;
+            CNetworkSession Session;
             lock (Send_Lock)
             {
                 if(Send_buffer.Count>0)
                 {
-                    Item = Recv_buffer.Pop();
+                    Session = Recv_buffer.Pop();
                 }
                 else
                 {
-                    Item = null;
+                    Session = null;
                 }
             }
-            return Item;
+            return Session;
         }
 
-        public bool SetSendBuffer(CDataSet Item)
+        /*
+         * set Session at send buffer
+         */
+        public bool SetSendBuffer(CNetworkSession Session)
         {
             lock(Send_Lock)
             {
-                Send_buffer.Push(Item);
+                Send_buffer.Push(Session);
             }
             return true;
         }
 
-        public CDataSet GetSendBuffer()
+        /*
+         * get Session from send buffer
+         */
+        public CNetworkSession GetSendBuffer()
         {
-            CDataSet Item;
+            CNetworkSession Session;
             lock (Send_Lock)
             {
                 if (Send_buffer.Count > 0)
                 {
-                    Item = Send_buffer.Pop();
+                    Session = Send_buffer.Pop();
                 }
                 else
                 {
-                    Item = null;
+                    Session = null;
                 }
             }
-            return Item;
+            return Session;
         }
 
-        public bool SetDatabseBuffer(CDataSet Item)
+        /*
+         * set Session at database buffer
+         */
+        public bool SetDatabseBuffer(CNetworkSession Session)
         {
             lock(Database_Lock)
             {
-                Database_Buffer.Push(Item);
+                Database_Buffer.Push(Session);
             }
             return true;
         }
 
-        public CDataSet GetDatabaseBuffer()
+        /*
+         * get Session from database buffer
+         */
+        public CNetworkSession GetDatabaseBuffer()
         {
-            CDataSet Item;
+            CNetworkSession Session;
             lock(Database_Lock)
             {
                 if(Database_Buffer.Count>0)
                 {
-                    Item = Database_Buffer.Pop();
+                    Session = Database_Buffer.Pop();
                 }
                 else
                 {
-                    Item = null;
+                    Session = null;
                 }
             }
-            return Item;
+            return Session;
         }
     }
 }

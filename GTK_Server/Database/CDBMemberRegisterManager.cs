@@ -1,11 +1,12 @@
-﻿using System;
-using System.IO;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 
 using GTK_Demo_Packet;
 
 namespace GTK_Server.Database
 {
+    /*
+     * this class helping user for register
+     */
     public class CDBMemberRegisterManager : CDBManager
     {
         private MemberRegister NewMember;
@@ -25,6 +26,9 @@ namespace GTK_Server.Database
             Result = new MemberRegisterResult();
         }
 
+        /*
+         * this function helps registing new member at database
+         */
         private bool RegistMember(string ID, string Pass)
         {
             MySqlCommand cmd;
@@ -58,6 +62,9 @@ namespace GTK_Server.Database
             return true;
         }
 
+        /*
+         * this function initalizing MemberRegisterResult member
+         */
         private void SetResult()
         {
             if (RegistMember(NewMember.id_str, NewMember.pw_str))
@@ -68,12 +75,18 @@ namespace GTK_Server.Database
             }
         }
 
+        /*
+         * this function return MemberRegisterResult member as MemberRegisterResult
+         */
         public MemberRegisterResult GetResultByRegisterResult()
         {
             SetResult();
             return Result;
         }
 
+        /*
+         * this function return MemberRegisterResult member as byte array
+         */
         public byte[] GetResultByByte()
         {
             SetResult();

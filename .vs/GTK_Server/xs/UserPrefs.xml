@@ -1,24 +1,26 @@
 ﻿<Properties StartupConfiguration="{52AB9DE3-BC6F-45F6-A197-CEC4A331622E}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="GTK_Server/Network/CNWManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="GTK_Server/Database/CDBLoginManager.cs">
     <Files>
-      <File FileName="GTK_Server/Network/CNWManager.cs" Line="52" Column="30" />
-      <File FileName="GTK_Server/Handler/CDataSet.cs" Line="10" Column="16" />
-      <File FileName="GTK_Server/Handler/CPacketFactory.cs" Line="1" Column="1" />
-      <File FileName="GTK_Server/Database/CDBManager.cs" Line="24" Column="41" />
-      <File FileName="GTK_Server/Database/CDBMemberRegisterManager.cs" Line="25" Column="49" />
-      <File FileName="GTK_Server/Database/CDBLoginManager.cs" Line="105" Column="1" />
+      <File FileName="GTK_Server/Program.cs" Line="36" Column="23" />
+      <File FileName="GTK_Server/Network/CNWManager.cs" Line="11" Column="40" />
+      <File FileName="GTK_Server/Handler/CNetworkSession.cs" Line="8" Column="25" />
+      <File FileName="GTK_Server/Handler/CPacketFactory.cs" Line="7" Column="58" />
+      <File FileName="GTK_Server/Handler/CPacketHandler.cs" Line="21" Column="44" />
+      <File FileName="GTK_Server/Database/CDBMemberRegisterManager.cs" Line="1" Column="1" />
+      <File FileName="GTK_Server/Database/CDBManager.cs" Line="38" Column="79" />
+      <File FileName="GTK_Server/Database/CDBLoginManager.cs" Line="26" Column="12" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="GTK_Server" expanded="True">
             <Node name="GTK_Server" expanded="True">
-              <Node name="Dependencies" expanded="True">
-                <Node name="AssemblyDependencies" expanded="True" />
-                <Node name="FrameworkReferences" expanded="True" />
-                <Node name="PackageDependencies" expanded="True" />
+              <Node name="Dependencies" expanded="True" />
+              <Node name="Database" expanded="True">
+                <Node name="CDBLoginManager.cs" selected="True" />
               </Node>
-              <Node name="Database" expanded="True" />
+              <Node name="Handler" expanded="True" />
+              <Node name="Network" expanded="True" />
             </Node>
           </Node>
         </State>

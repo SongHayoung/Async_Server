@@ -1,11 +1,13 @@
 ﻿using System;
-using System.IO;
 using MySql.Data.MySqlClient;
 
 using GTK_Server.Handler;
 using GTK_Demo_Packet;
 namespace GTK_Server.Database
 {
+    /*
+     * this class helps managing database
+     */
     public class CDBManager
     {
         private static string DBInfo = "Server=127.0.0.1;Uid=root;Pwd=admin;";
@@ -19,6 +21,9 @@ namespace GTK_Server.Database
             DB_conn = new MySqlConnection(dbinfo);
         }
 
+        /*
+         * Running Database Manager
+         */
         public static void Run()
         {
             Console.WriteLine("Database Manager on Active");
@@ -29,24 +34,27 @@ namespace GTK_Server.Database
             Console.WriteLine("Database Manager Join");
         }
 
+        /*
+         * this function calls profit manager to set and get data from Databse
+         */
         public static void Handling(CPacketFactory PacketFactory)
         {
             while (Program.IsRunning())
             {
-                CDataSet Item = PacketFactory.GetDatabaseBuffer();
-                if (Item == null)
+                CNetworkSession Session = PacketFactory.GetDatabaseBuffer();
+                if (Session == null)
                     continue;
-                CDataSet Result = new CDataSet();
-                Result._socket = Item._socket;
+                CNetworkSession Result = new CNetworkSession();
+                Result._socket = Session._socket;
 
-                if (Item._packettype == PacketType.Login)
+                if (Session._packettype == PacketType.Login)
                 {
-                    CDBLoginManager lgM = new CDBLoginManager(Item._buffer);
+                    CDBLoginManager lgM = new CDBLoginManager(Session._buffer);
                     Result._buffer = lgM.GetResultByByte();
                 }
-                if (Item._packettype == PacketType.Login_RESULT)
+                if (Session._packettype == PacketType.Login_RESULT)
                 {
-                    CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Item._buffer);
+                    CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Session._buffer);
                     Result._buffer = rgM.GetResultByByte();
                 }
 
@@ -64,6 +72,9 @@ namespace GTK_Server.Database
             Console.WriteLine("Database Manager : {0} {1}", str1, str2);
         }
 
+        /*
+         * Initialize Database
+         */
         private static void DB_Setting()
         {
             try
