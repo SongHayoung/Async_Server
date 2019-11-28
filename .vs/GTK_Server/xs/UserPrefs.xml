@@ -2,13 +2,13 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="GTK_Server/Database/CDBLoginManager.cs">
     <Files>
       <File FileName="GTK_Server/Program.cs" Line="36" Column="23" />
-      <File FileName="GTK_Server/Network/CNWManager.cs" Line="11" Column="40" />
-      <File FileName="GTK_Server/Handler/CNetworkSession.cs" Line="8" Column="25" />
-      <File FileName="GTK_Server/Handler/CPacketFactory.cs" Line="7" Column="58" />
-      <File FileName="GTK_Server/Handler/CPacketHandler.cs" Line="21" Column="44" />
-      <File FileName="GTK_Server/Database/CDBMemberRegisterManager.cs" Line="1" Column="1" />
-      <File FileName="GTK_Server/Database/CDBManager.cs" Line="38" Column="79" />
-      <File FileName="GTK_Server/Database/CDBLoginManager.cs" Line="26" Column="12" />
+      <File FileName="GTK_Server/Network/CNWManager.cs" />
+      <File FileName="GTK_Server/Handler/CNetworkSession.cs" />
+      <File FileName="GTK_Server/Handler/CPacketFactory.cs" />
+      <File FileName="GTK_Server/Handler/CPacketHandler.cs" />
+      <File FileName="GTK_Server/Database/CDBMemberRegisterManager.cs" />
+      <File FileName="GTK_Server/Database/CDBManager.cs" />
+      <File FileName="GTK_Server/Database/CDBLoginManager.cs" Line="26" Column="10" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -24,6 +24,9 @@
             </Node>
           </Node>
         </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
