@@ -4,7 +4,6 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 
 using GTK_Server.Handler;
-using GTK_Demo_Packet;
 namespace GTK_Server.Network
 {
     /*

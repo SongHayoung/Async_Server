@@ -67,8 +67,6 @@ namespace GTK_Server.Handler
 
         public static void Handling_ResultDBData(Socket s, byte[] buffer, PacketType packettype)
         {
-
-            HM_log("No Data in Result Buffer From DataBase");
             CDataFactory PacketFactory = CDataFactory.GetDataFactory();
             CNetworkSession Session = new CNetworkSession(s, buffer, packettype);
             if(buffer.Length==0)

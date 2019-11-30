@@ -18,11 +18,13 @@ namespace GTK_Server.Database
         public CDBLoginManager(Login User) : base(DBInfo)
         {
             this.User = User;
+            Result = new LoginResult();
         }
 
         public CDBLoginManager(byte[] User) : base(DBInfo)
         {
             this.User = (Login)Packet.Deserialize(User);
+            Result = new LoginResult();
         }
 
         /*
@@ -79,10 +81,10 @@ namespace GTK_Server.Database
                 cmd.ExecuteNonQuery();
 
                 DB_conn.Close();
-                DM_setLog("User logined", this.User.id_str);
+                DM_setLog("User logined ", this.User.id_str);
                 Result.result = true;
                 Result.packet_Type = PacketType.Login_RESULT;
-                Result.msg = "성공";
+                Result.msg = "로그인 성공";
                 return ;
             }
             catch(Exception e)

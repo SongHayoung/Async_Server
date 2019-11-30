@@ -46,6 +46,7 @@ namespace GTK_Server.Database
                 dr.Close();
                 DB_conn.Close();
                 Result.msg = new string("이미 존재하는 아이디 입니다.");
+                Result.packet_Type = PacketType.Member_REGISTER_RESULT;
                 Result.result = false;
                 return false;
             }
@@ -68,7 +69,7 @@ namespace GTK_Server.Database
             if (RegistMember(NewMember.id_str, NewMember.pw_str))
             {
                 DM_setLog("New User Registered");
-                Result.msg = new string("성공");
+                Result.msg = new string("회원 가입 성공");
                 Result.packet_Type = PacketType.Member_REGISTER_RESULT;
                 Result.result = true;
             }
