@@ -18,7 +18,7 @@ namespace GTK_Server
         {
             Thread NWManager = new Thread(new ThreadStart(CNWManager.Run));
             Thread DBManager = new Thread(new ThreadStart(CDBManager.Run));
-            Thread HandlingManager = new Thread(new ThreadStart(CPacketHandler.Run));
+            Thread HandlingManager = new Thread(new ThreadStart(CDataHandler.Run));
 
             NWManager.Start();
             DBManager.Start();

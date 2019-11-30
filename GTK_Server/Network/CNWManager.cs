@@ -44,7 +44,6 @@ namespace GTK_Server.Network
          */
         private static void Handling()
         {
-            CPacketFactory PacketFactory = CPacketFactory.GetCPacketFactory();
             while(Program.IsRunning())
             {
                 foreach(Socket _Client in Clients)
@@ -54,7 +53,7 @@ namespace GTK_Server.Network
                         Clients.Remove(_Client);
                     }
                 }
-                CNetworkSession Session = PacketFactory.GetSendBuffer();
+                CNetworkSession Session = CDataHandler.Handling_SendPacket();
                 if (Session == null)
                     continue;
                 Socket Client = Session._socket;
@@ -110,8 +109,7 @@ namespace GTK_Server.Network
             {
                 byte[] buffer = e.Buffer;
 
-                CPacketFactory PacketFactory = CPacketFactory.GetCPacketFactory();
-                PacketFactory.SetRecvBuffer(Client, buffer);
+                CDataHandler.Handling_RecvPacket(Client, buffer);
                 CompleteAsync = Client.ReceiveAsync(e);
                 if (!CompleteAsync)
                 {   //this block is running at ReceiveAsync done as Sync

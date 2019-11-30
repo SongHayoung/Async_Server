@@ -28,37 +28,37 @@ namespace GTK_Server.Database
         {
             Console.WriteLine("Database Manager on Active");
             DB_conn = new MySqlConnection(DBInfo);
-            CPacketFactory PacketFactory = CPacketFactory.GetCPacketFactory();
             DB_Setting();
-            Handling(PacketFactory);
+            Handling();
             Console.WriteLine("Database Manager Join");
         }
 
         /*
          * this function calls profit manager to set and get data from Databse
          */
-        public static void Handling(CPacketFactory PacketFactory)
+        public static void Handling()
         {
             while (Program.IsRunning())
             {
-                CNetworkSession Session = PacketFactory.GetDatabaseBuffer();
+                CNetworkSession Session = CDataHandler.Handling_GetDBData();
                 if (Session == null)
                     continue;
                 CNetworkSession Result = new CNetworkSession();
+                byte[] buffer;
                 Result._socket = Session._socket;
 
                 if (Session._packettype == PacketType.Login)
                 {
                     CDBLoginManager lgM = new CDBLoginManager(Session._buffer);
-                    Result._buffer = lgM.GetResultByByte();
+                    buffer = lgM.GetResultByByte();
+                    CDataHandler.Handling_ResultDBData(Result._socket, buffer, PacketType.Login_RESULT);
                 }
                 if (Session._packettype == PacketType.Login_RESULT)
                 {
                     CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Session._buffer);
-                    Result._buffer = rgM.GetResultByByte();
+                    buffer = rgM.GetResultByByte();
+                    CDataHandler.Handling_ResultDBData(Result._socket, buffer, PacketType.Member_REGISTER_RESULT);
                 }
-
-                PacketFactory.SetSendBuffer(Result);
             }
         }
 

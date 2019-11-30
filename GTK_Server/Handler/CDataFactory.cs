@@ -3,9 +3,12 @@ using System.Net.Sockets;
 
 namespace GTK_Server.Handler
 {
-    public class CPacketFactory
+    /*
+     * this class contain Sessions for each Manager needs
+     */
+    public class CDataFactory
     {
-        private static CPacketFactory PacketFactory = new CPacketFactory();
+        private static CDataFactory DataFactory = new CDataFactory();
         private Stack<CNetworkSession> Recv_buffer = new Stack<CNetworkSession>();
         private Stack<CNetworkSession> Send_buffer = new Stack<CNetworkSession>();
         private Stack<CNetworkSession> Database_Buffer = new Stack<CNetworkSession>();
@@ -16,14 +19,14 @@ namespace GTK_Server.Handler
 
         private const int BUF_SIZE = 1024 * 4;
 
-        private CPacketFactory() { }
+        private CDataFactory() { }
 
         /*
          * Return PacketFactory
          */
-        public static CPacketFactory GetCPacketFactory()
+        public static CDataFactory GetDataFactory()
         {
-            return PacketFactory;
+            return DataFactory;
         }
 
         /*
@@ -38,6 +41,16 @@ namespace GTK_Server.Handler
             }
             return true;
         }
+
+        public bool SetRecvBuffer(CNetworkSession Session)
+        {
+            lock(Recv_Lock)
+            {
+                Recv_buffer.Push(Session);
+            }
+            return true;
+        }
+
 
         /*
          * get Session from receive buffer
