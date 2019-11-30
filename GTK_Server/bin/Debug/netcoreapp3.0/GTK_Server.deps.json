@@ -9,7 +9,7 @@
       "GTK_Server/1.0.0": {
         "dependencies": {
           "MySql.Data": "8.0.18",
-          "GTK_Demo_Packet": "1.0.7270.31469"
+          "GTK_Demo_Packet": "1.0.7273.31581"
         },
         "runtime": {
           "GTK_Server.dll": {}
@@ -956,11 +956,11 @@
           }
         }
       },
-      "GTK_Demo_Packet/1.0.7270.31469": {
+      "GTK_Demo_Packet/1.0.7273.31581": {
         "runtime": {
           "GTK_Demo_Packet.dll": {
-            "assemblyVersion": "1.0.7270.31469",
-            "fileVersion": "1.0.7270.31469"
+            "assemblyVersion": "1.0.7273.31581",
+            "fileVersion": "1.0.7273.31581"
           }
         }
       }
@@ -1630,7 +1630,7 @@
       "path": "system.xml.xpath.xmldocument/4.0.1",
       "hashPath": "system.xml.xpath.xmldocument.4.0.1.nupkg.sha512"
     },
-    "GTK_Demo_Packet/1.0.7270.31469": {
+    "GTK_Demo_Packet/1.0.7273.31581": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

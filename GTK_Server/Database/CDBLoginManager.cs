@@ -81,6 +81,7 @@ namespace GTK_Server.Database
                 DB_conn.Close();
                 DM_setLog("User logined", this.User.id_str);
                 Result.result = true;
+                Result.packet_Type = PacketType.Login_RESULT;
                 Result.msg = "성공";
                 return ;
             }
@@ -89,6 +90,7 @@ namespace GTK_Server.Database
                 DM_setLog(e.ToString());
                 DB_conn.Close();
                 Result.result = false;
+                Result.packet_Type = PacketType.Login_RESULT;
                 Result.msg = "중복된 접속입니다";
                 return ;
             }
@@ -102,6 +104,7 @@ namespace GTK_Server.Database
             if (!invalidIDorPass(User.id_str, User.pw_str))
             {
                 Result.result = false;
+                Result.packet_Type = PacketType.Login_RESULT;
                 Result.msg = "아이디나 비밀번호가 맞지 않습니다";
                 return;
             }

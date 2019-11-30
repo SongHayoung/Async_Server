@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 
 using GTK_Server.Handler;
-
+using GTK_Demo_Packet;
 namespace GTK_Server.Network
 {
     /*
@@ -56,6 +56,7 @@ namespace GTK_Server.Network
                 CNetworkSession Session = CDataHandler.Handling_SendPacket();
                 if (Session == null)
                     continue;
+                NWM_log("Sending Packet");
                 Socket Client = Session._socket;
                 byte[] buffer = Session._buffer;
                 SocketAsyncEventArgs Asynce = new SocketAsyncEventArgs();
@@ -105,11 +106,11 @@ namespace GTK_Server.Network
         {
             Socket Client = (Socket)sender;
             bool CompleteAsync = false;
-            if (Client.Connected && e.BytesTransferred>0)
+            if (Client.Connected )//&& e.BytesTransferred>0)
             {
                 byte[] buffer = e.Buffer;
-
                 CDataHandler.Handling_RecvPacket(Client, buffer);
+                NWM_log("Receving Packet");
                 CompleteAsync = Client.ReceiveAsync(e);
                 if (!CompleteAsync)
                 {   //this block is running at ReceiveAsync done as Sync
@@ -137,5 +138,9 @@ namespace GTK_Server.Network
             }
         }
 
+        private static void NWM_log(string str)
+        {
+            Console.WriteLine("Network Manager : " + str);
+        }
     }
 }

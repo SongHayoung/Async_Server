@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 
 namespace GTK_Server.Handler
@@ -58,9 +59,9 @@ namespace GTK_Server.Handler
         public CNetworkSession GetRecvBuffer()
         {
             CNetworkSession Session;
-            lock (Send_Lock)
+            lock (Recv_Lock)
             {
-                if(Send_buffer.Count>0)
+                if (Recv_buffer.Count>0)
                 {
                     Session = Recv_buffer.Pop();
                 }

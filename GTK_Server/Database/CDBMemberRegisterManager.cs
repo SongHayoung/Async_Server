@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using System;
+using MySql.Data.MySqlClient;
 
 using GTK_Demo_Packet;
 
@@ -39,9 +40,7 @@ namespace GTK_Server.Database
             string s = "SELECT * FROM USER WHERE ID = @ID;";
             cmd = new MySqlCommand(s, DB_conn);
             cmd.Parameters.AddWithValue("@ID", ID);
-
             MySqlDataReader dr = cmd.ExecuteReader();
-
             if (dr.Read())
             {
                 dr.Close();
@@ -50,14 +49,13 @@ namespace GTK_Server.Database
                 Result.result = false;
                 return false;
             }
-
+            dr.Close();
             s = new string("INSERT INTO USER(ID,Pass)" + "VALUES(@ID,@Pass);");
             cmd = new MySqlCommand(s, DB_conn);
             cmd.Parameters.AddWithValue("@ID", this.NewMember.id_str);
             cmd.Parameters.AddWithValue("@Pass", this.NewMember.pw_str);
             cmd.ExecuteNonQuery();
 
-            dr.Close();
             DB_conn.Close();
             return true;
         }
@@ -71,6 +69,7 @@ namespace GTK_Server.Database
             {
                 DM_setLog("New User Registered");
                 Result.msg = new string("성공");
+                Result.packet_Type = PacketType.Member_REGISTER_RESULT;
                 Result.result = true;
             }
         }

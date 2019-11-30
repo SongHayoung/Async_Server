@@ -14,12 +14,15 @@
     <Folder Include="Handler\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Handler\CNWLoginHandler.cs" />
+    <Compile Remove="Handler\CNWMemberRegisterHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="GTK_Demo_Packet">
       <HintPath>..\..\GTK_Demo_Packet\GTK_Demo_Packet\bin\Debug\GTK_Demo_Packet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Handler\CNWLoginHandler.cs" />
-    <Compile Remove="Handler\CNWMemberRegisterHandler.cs" />
+    <None Remove="Handler\.DS_Store" />
   </ItemGroup>
 </Project>

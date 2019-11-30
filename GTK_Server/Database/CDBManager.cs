@@ -43,6 +43,7 @@ namespace GTK_Server.Database
                 CNetworkSession Session = CDataHandler.Handling_GetDBData();
                 if (Session == null)
                     continue;
+                DM_setLog("Working");
                 CNetworkSession Result = new CNetworkSession();
                 byte[] buffer;
                 Result._socket = Session._socket;
@@ -53,7 +54,7 @@ namespace GTK_Server.Database
                     buffer = lgM.GetResultByByte();
                     CDataHandler.Handling_ResultDBData(Result._socket, buffer, PacketType.Login_RESULT);
                 }
-                if (Session._packettype == PacketType.Login_RESULT)
+                if (Session._packettype == PacketType.Member_REGISTER)
                 {
                     CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Session._buffer);
                     buffer = rgM.GetResultByByte();
@@ -65,11 +66,11 @@ namespace GTK_Server.Database
 
         protected static void DM_setLog(string str1)
         {
-            Console.WriteLine("Database Manager : {0}", str1);
+            Console.WriteLine("Database Manager : " + str1);
         }
         protected static void DM_setLog(string str1, string str2)
         {
-            Console.WriteLine("Database Manager : {0} {1}", str1, str2);
+            Console.WriteLine("Database Manager : " + str1 + str2);
         }
 
         /*

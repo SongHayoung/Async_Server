@@ -29,6 +29,7 @@ namespace GTK_Server.Handler
                 if (Session == null)
                     continue;
 
+                HM_log("Working");
                 if (Session._packettype == PacketType.Login || Session._packettype == PacketType.Member_REGISTER)
                 {
                     DataFactory.SetDatabseBuffer(Session);
@@ -58,26 +59,33 @@ namespace GTK_Server.Handler
         public static void Handling_ResultDBData(CNetworkSession Session)
         {
             CDataFactory PacketFactory = CDataFactory.GetDataFactory();
-            if(PacketFactory.SetSendBuffer(Session))
+            if(!PacketFactory.SetSendBuffer(Session))
             {
-                Console.WriteLine("Packet Handler : SetSendBuffer Error");
+                HM_log("SetSendBuffer Error");
             }
         }
 
         public static void Handling_ResultDBData(Socket s, byte[] buffer, PacketType packettype)
         {
+
+            HM_log("No Data in Result Buffer From DataBase");
             CDataFactory PacketFactory = CDataFactory.GetDataFactory();
             CNetworkSession Session = new CNetworkSession(s, buffer, packettype);
             if(buffer.Length==0)
             {
-                Console.WriteLine("Packet Handler : No Data in Result Buffer From DataBase");
+                HM_log("No Data in Result Buffer From DataBase");
                 return;
             }
-            if (PacketFactory.SetSendBuffer(Session))
+            if (!PacketFactory.SetSendBuffer(Session))
             {
-                Console.WriteLine("Packet Handler : SetSendBuffer Error");
+                HM_log("SetSendBuffer Error");
                 return;
             }
+        }
+
+        private static void HM_log(string str)
+        {
+            Console.WriteLine("Handling Manager : " + str);
         }
     }
 }
