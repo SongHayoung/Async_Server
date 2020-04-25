@@ -1,15 +1,13 @@
 ﻿<Properties StartupConfiguration="{52AB9DE3-BC6F-45F6-A197-CEC4A331622E}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="GTK_Server/Handler/CDataHandler.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="GTK_Server/Handler/CDataFactory.cs">
     <Files>
-      <File FileName="GTK_Server/Database/CDBLoginManager.cs" Line="15" Column="1" />
-      <File FileName="GTK_Server/Database/CDBManager.cs" />
-      <File FileName="GTK_Server/Handler/CDataHandler.cs" Line="38" Column="45" />
+      <File FileName="GTK_Server/Database/CDBManager.cs" Line="83" Column="29" />
       <File FileName="GTK_Server/Program.cs" />
       <File FileName="GTK_Server/Handler/CNetworkSession.cs" />
-      <File FileName="GTK_Server/Database/CDBMemberRegisterManager.cs" />
       <File FileName="GTK_Server/Handler/.DS_Store" />
       <File FileName="GTK_Server/Network/CNWManager.cs" />
-      <File FileName="GTK_Server/Handler/CDataFactory.cs" Line="141" Column="21" />
+      <File FileName="GTK_Server/Handler/CDataHandler.cs" Line="99" Column="34" />
+      <File FileName="GTK_Server/Handler/CDataFactory.cs" Line="169" Column="16" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -21,7 +19,7 @@
               </Node>
               <Node name="Database" expanded="True" />
               <Node name="Handler" expanded="True">
-                <Node name="CDataHandler.cs" selected="True" />
+                <Node name="CDataFactory.cs" selected="True" />
               </Node>
               <Node name="Network" expanded="True" />
             </Node>

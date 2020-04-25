@@ -26,8 +26,7 @@ namespace GTK_Server.Handler
         /*
          * Return PacketFactory
          */
-        public static CDataFactory GetDataFactory()
-        {
+        public static CDataFactory GetDataFactory(){
             return DataFactory;
         }
 
@@ -150,15 +149,24 @@ namespace GTK_Server.Handler
         {
             byte[] buffer;
             HeartBeat heartBeat = new HeartBeat();
+            DateTime Starttime = DateTime.Now;
+            TimeSpan Limit = new TimeSpan(0, 10, 0);
             foreach(KeyValuePair<string,CNetworkSession> sessions in Clients)
             {
                 if (sessions.Value._socket.Connected){
-                    heartBeat.id_str = sessions.Key;
-                    buffer = Packet.Serialize(heartBeat);
-                    if (!SetSendBuffer(new CNetworkSession(sessions.Value._socket, buffer, PacketType.Heart_Beat)))
-                        Console.WriteLine("DATA FACTORY : Heart Beat Error\n");
-                    else
-                        Console.WriteLine("DATA FACTORY : HeartBeat Sending " + sessions.Key);
+                    TimeSpan diff = Starttime - sessions.Value._datetime;
+                    if (TimeSpan.Compare(Limit,diff)==-1) {
+                        sessions.Value._socket.Close();
+                        Clients.Remove(sessions.Key);
+                    }
+                    else {
+                        heartBeat.id_str = sessions.Key;
+                        buffer = Packet.Serialize(heartBeat);
+                        if (!SetSendBuffer(new CNetworkSession(sessions.Value._socket, buffer, PacketType.Heart_Beat)))
+                            Console.WriteLine("DATA FACTORY : Heart Beat Error\n");
+                        else
+                            Console.WriteLine("DATA FACTORY : HeartBeat Sending " + sessions.Key + " " + sessions.Value._datetime.ToString("yyyy/MM/dd hh:mm:ss"));
+                    }
                 }
                 else{
                     sessions.Value._socket.Close();
@@ -168,6 +176,7 @@ namespace GTK_Server.Handler
         }
         public bool setHeartBeat(string id) {
             Clients[id]._datetime = DateTime.Now;
+            Console.WriteLine("Update Heart Beat time " + id + " " + Clients[id]._datetime.ToString("yyyy/MM/dd hh:mm:ss"));
             return true;
         }
     }
