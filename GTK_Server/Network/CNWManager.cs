@@ -14,7 +14,8 @@ namespace GTK_Server.Network
         private const int Port = 5011;
         private const int Buf_Size = 1024 * 4;
 
-        private static List<Socket> Clients = new List<Socket>();
+        //private static List<Socket> Clients = new List<Socket>();
+        //private static Dictionary<string, Tuple<Socket, DateTime>> Clients = new Dictionary<string, Tuple<Socket, DateTime>>();
         private static Socket Server;
 
         public CNWManager() { }
@@ -45,13 +46,13 @@ namespace GTK_Server.Network
         {
             while(Program.IsRunning())
             {
-                foreach(Socket _Client in Clients)
+               /* foreach(Socket _Client in Clients)
                 {
-                    if(!_Client.Connected)
+                    //if(!_Client.Connected)
                     {
-                        Clients.Remove(_Client);
+                    //    Clients.Remove(_Client);
                     }
-                }
+                }*/
                 CNetworkSession Session = CDataHandler.Handling_SendPacket();
                 if (Session == null)
                     continue;
@@ -79,11 +80,11 @@ namespace GTK_Server.Network
         {
             Socket Client = e.AcceptSocket;
 
-            if(Clients!=null)
-            {
-                Clients.Add(Client);
+            //if(Clients!=null)
+           // {
+             //   Clients.Add(Client);
 
-                e.UserToken = Clients;
+               // e.UserToken = Clients;
 
                 byte[] buffer = new byte[Buf_Size];
                 SocketAsyncEventArgs Asynce = new SocketAsyncEventArgs();
@@ -94,7 +95,7 @@ namespace GTK_Server.Network
                 Socket server = (Socket)sender;
                 e.AcceptSocket = null;
                 server.AcceptAsync(e);
-            }
+           // }
         }
 
         /*
@@ -119,10 +120,7 @@ namespace GTK_Server.Network
                 }
             }
             else
-            {
-                Clients.Remove(Client);
                 Client.Close();
-            }
         }
 
         /*

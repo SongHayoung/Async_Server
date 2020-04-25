@@ -8,8 +8,9 @@ namespace GTK_Server.Handler
     {
         public CDataHandler() { }
         /*
-         * Running PacketHandler
+         * Running DataHandler
          */
+        private static System.Timers.Timer HeartBeatTimer = new System.Timers.Timer();
         public static void Run()
         {
             Console.WriteLine("Handling Manager on Active");
@@ -18,30 +19,42 @@ namespace GTK_Server.Handler
         }
 
         /*
-         * this function helps moving Recv Sessions to right Stack at PacketFactory
+         * this function helps moving Recv Sessions to right Queue at PacketFactory
          */
         private static void Handling()
         {
             CDataFactory DataFactory = CDataFactory.GetDataFactory();
+           
+            HeartBeatTimer.Interval = 5000;
+            HeartBeatTimer.Elapsed += new System.Timers.ElapsedEventHandler(Handling_HeartBeat);
+            HeartBeatTimer.Start();
             while (Program.IsRunning())
             {
                 CNetworkSession Session = DataFactory.GetRecvBuffer();
                 if (Session == null)
                     continue;
-
                 HM_log("Working");
                 if (Session._packettype == PacketType.Login || Session._packettype == PacketType.Member_REGISTER)
                 {
                     DataFactory.SetDatabseBuffer(Session);
                 }
+                else if(Session._packettype == PacketType.Heart_Beat)
+                {
+                    HM_log("REVEICE HEART BEAT FROM " + ((HeartBeat)Packet.Deserialize(Session._buffer)).id_str);
+                    DataFactory.setHeartBeat(((HeartBeat)Packet.Deserialize(Session._buffer)).id_str);
+                }
             }
         }
 
-        public static void Handling_RecvPacket(Socket socket, byte[] buffer)
-        {
+        public static void Handling_RecvPacket(Socket socket, byte[] buffer){
             CNetworkSession RecvSession = new CNetworkSession(socket, buffer);
             CDataFactory PacketFactory = CDataFactory.GetDataFactory();
-            PacketFactory.SetRecvBuffer(RecvSession);
+            if(RecvSession._packettype == PacketType.Login){
+                PacketFactory.SetRecvBuffer(RecvSession);
+                PacketFactory.SetClients(RecvSession);
+            }
+            else
+                PacketFactory.SetRecvBuffer(RecvSession);
         }
 
         public static CNetworkSession Handling_SendPacket()
@@ -79,6 +92,13 @@ namespace GTK_Server.Handler
                 HM_log("SetSendBuffer Error");
                 return;
             }
+        }
+
+        private static void Handling_HeartBeat(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            HM_log("Heart BEAT");
+            CDataFactory DataFactory = CDataFactory.GetDataFactory();
+            DataFactory.doHeartBeat();
         }
 
         private static void HM_log(string str)

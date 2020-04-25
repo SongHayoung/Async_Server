@@ -8,8 +8,7 @@ namespace GTK_Server.Database
     /*
      * this class helps managing database
      */
-    public class CDBManager
-    {
+    public class CDBManager{
         private static string DBInfo = "Server=127.0.0.1;Uid=root;Pwd=admin;";
         private const int Buf_Size = 1024 * 4;
         protected static MySqlConnection DB_conn;
