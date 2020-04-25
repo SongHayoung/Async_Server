@@ -97,8 +97,7 @@ namespace GTK_Server.Handler
                 {
                     Session = Send_buffer.Dequeue();
                 }
-                else
-                {
+                else{
                     Session = null;
                 }
             }
@@ -120,17 +119,13 @@ namespace GTK_Server.Handler
         /*
          * get Session from database buffer
          */
-        public CNetworkSession GetDatabaseBuffer()
-        {
+        public CNetworkSession GetDatabaseBuffer() {
             CNetworkSession Session;
-            lock(Database_Lock)
-            {
-                if(Database_Buffer.Count>0)
-                {
+            lock(Database_Lock){
+                if(Database_Buffer.Count>0) {
                     Session = Database_Buffer.Dequeue();
                 }
-                else
-                {
+                else {
                     Session = null;
                 }
             }
@@ -145,14 +140,12 @@ namespace GTK_Server.Handler
             return true;
         }
 
-        public void doHeartBeat()
-        {
+        public void doHeartBeat() {
             byte[] buffer;
             HeartBeat heartBeat = new HeartBeat();
             DateTime Starttime = DateTime.Now;
             TimeSpan Limit = new TimeSpan(0, 10, 0);
-            foreach(KeyValuePair<string,CNetworkSession> sessions in Clients)
-            {
+            foreach(KeyValuePair<string,CNetworkSession> sessions in Clients) {
                 if (sessions.Value._socket.Connected){
                     TimeSpan diff = Starttime - sessions.Value._datetime;
                     if (TimeSpan.Compare(Limit,diff)==-1) {
