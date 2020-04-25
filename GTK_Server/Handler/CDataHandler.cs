@@ -50,8 +50,15 @@ namespace GTK_Server.Handler
             CNetworkSession RecvSession = new CNetworkSession(socket, buffer);
             CDataFactory PacketFactory = CDataFactory.GetDataFactory();
             if(RecvSession._packettype == PacketType.Login){
-                PacketFactory.SetRecvBuffer(RecvSession);
-                PacketFactory.SetClients(RecvSession);
+                if (PacketFactory.SetClients(RecvSession))
+                    PacketFactory.SetRecvBuffer(RecvSession);
+                else{
+                    LoginResult loginResult = new LoginResult();
+                    loginResult.msg = "이미 접속이 되어있는 계정입니다";
+                    buffer = Packet.Serialize(loginResult);
+                    CNetworkSession failSession = new CNetworkSession(socket, buffer,PacketType.Login_RESULT);
+                    PacketFactory.SetSendBuffer(failSession);
+                }
             }
             else
                 PacketFactory.SetRecvBuffer(RecvSession);
