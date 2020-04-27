@@ -9,15 +9,12 @@ namespace GTK_Server.Database
      * this class helps managing database
      */
     public class CDBManager{
-        private static string DBInfo = "Server=127.0.0.1;Uid=root;Pwd=admin;";
         private const int Buf_Size = 1024 * 4;
-        protected static MySqlConnection DB_conn;
+        protected static IDBConnection DB_conn;
 
-        public CDBManager() { }
-
-        public CDBManager(string dbinfo)
+        public CDBManager(IDBConnection connection)
         {
-            DB_conn = new MySqlConnection(dbinfo);
+            DB_conn = new CDBConnection();
         }
 
         /*
@@ -26,8 +23,8 @@ namespace GTK_Server.Database
         public static void Run()
         {
             Console.WriteLine("Database Manager on Active");
-            DB_conn = new MySqlConnection(DBInfo);
-            DB_Setting();
+            MySqlConnection DB = new CDBConnection().makeConnection();
+            DB_Setting(DB);
             Handling();
             Console.WriteLine("Database Manager Join");
         }
@@ -49,13 +46,13 @@ namespace GTK_Server.Database
 
                 if (Session._packettype == PacketType.Login)
                 {
-                    CDBLoginManager lgM = new CDBLoginManager(Session._buffer);
+                    CDBLoginManager lgM = new CDBLoginManager(Session._buffer,DB_conn);
                     buffer = lgM.GetResultByByte();
                     CDataHandler.Handling_ResultDBData(Result._socket, buffer, PacketType.Login_RESULT);
                 }
                 if (Session._packettype == PacketType.Member_REGISTER)
                 {
-                    CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Session._buffer);
+                    CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Session._buffer,DB_conn);
                     buffer = rgM.GetResultByByte();
                     CDataHandler.Handling_ResultDBData(Result._socket, buffer, PacketType.Member_REGISTER_RESULT);
                 }
@@ -75,7 +72,7 @@ namespace GTK_Server.Database
         /*
          * Initialize Database
          */
-        private static void DB_Setting()
+        private static void DB_Setting(MySqlConnection DB_conn)
         {
             try
             {

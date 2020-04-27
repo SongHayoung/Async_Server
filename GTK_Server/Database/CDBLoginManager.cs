@@ -13,15 +13,13 @@ namespace GTK_Server.Database
         private Login User;
         private LoginResult Result { get; set;}
 
-        private static string DBInfo = "Server=127.0.0.1;Database=DemoDB;Uid=root;Pwd=admin;";
-
-        public CDBLoginManager(Login User) : base(DBInfo)
+        public CDBLoginManager(Login User, IDBConnection DB_Conn) : base(DB_conn)
         {
             this.User = User;
             Result = new LoginResult();
         }
 
-        public CDBLoginManager(byte[] User) : base(DBInfo)
+        public CDBLoginManager(byte[] User, IDBConnection DB_Conn) : base(DB_conn)
         {
             this.User = (Login)Packet.Deserialize(User);
             Result = new LoginResult();
@@ -33,12 +31,11 @@ namespace GTK_Server.Database
         private bool invalidIDorPass(string ID, string Pass)
         {
             MySqlCommand cmd;
-
-            DB_conn = new MySqlConnection(DBInfo);
-            DB_conn.Open();
+            MySqlConnection DB = DB_conn.makeConnection();
+            DB.Open();
 
             string s = "SELECT * FROM USER WHERE ID = @ID;";
-            cmd = new MySqlCommand(s, DB_conn);
+            cmd = new MySqlCommand(s, DB);
             cmd.Parameters.AddWithValue("@ID", ID);
 
             MySqlDataReader dr = cmd.ExecuteReader();
@@ -46,18 +43,18 @@ namespace GTK_Server.Database
             if(!dr.Read())
             {
                 dr.Close();
-                DB_conn.Close();
+                DB.Close();
                 return false;
             }
             if(Pass.CompareTo(dr[1].ToString())!=0)
             {
                 dr.Close();
-                DB_conn.Close();
+                DB.Close();
                 return false;
             }
 
             dr.Close();
-            DB_conn.Close();
+            DB.Close();
             return true;
         }
 
@@ -66,21 +63,21 @@ namespace GTK_Server.Database
          */
         private void DuplicatedLogin()
         {
+
+            MySqlCommand cmd;
+            MySqlConnection DB = DB_conn.makeConnection();
+            DB.Open();
             try
             {
-                MySqlCommand cmd;
-
-                DB_conn = new MySqlConnection(DBInfo);
-                DB_conn.Open();
 
                 string s = "INSERT INTO USER_MANAGEMENT(ID,IP,PORT)" + "VALUES(@ID,@IP,@PORT);";
-                cmd = new MySqlCommand(s, DB_conn);
+                cmd = new MySqlCommand(s, DB);
                 cmd.Parameters.AddWithValue("@ID", this.User.id_str);
                 cmd.Parameters.AddWithValue("@IP", this.User.ip_str);
                 cmd.Parameters.AddWithValue("@PORT", this.User.port_str);
                 cmd.ExecuteNonQuery();
 
-                DB_conn.Close();
+                DB.Close();
                 DM_setLog("User logined ", this.User.id_str);
                 Result.result = true;
                 Result.packet_Type = PacketType.Login_RESULT;
@@ -90,7 +87,7 @@ namespace GTK_Server.Database
             catch(Exception e)
             {
                 DM_setLog(e.ToString());
-                DB_conn.Close();
+                DB.Close();
                 Result.result = false;
                 Result.packet_Type = PacketType.Login_RESULT;
                 Result.msg = "중복된 접속입니다";
