@@ -1,16 +1,12 @@
 ﻿<Properties StartupConfiguration="{52AB9DE3-BC6F-45F6-A197-CEC4A331622E}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="GTK_Server/Database/CDBLoginManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="GTK_Server/Database/CDBManager.cs">
     <Files>
-      <File FileName="GTK_Server/Database/CDBManager.cs" Line="22" Column="12" />
-      <File FileName="GTK_Server/Program.cs" Line="1" Column="1" />
-      <File FileName="GTK_Server/Handler/CNetworkSession.cs" Line="28" Column="13" />
-      <File FileName="GTK_Server/Network/CNWManager.cs" Line="1" Column="1" />
-      <File FileName="GTK_Server/Handler/CDataFactory.cs" />
-      <File FileName="GTK_Server/Database/CDBLoginManager.cs" Line="18" Column="19" />
-      <File FileName="GTK_Server/Database/EmptyInterface.cs" Line="6" Column="4" />
-      <File FileName="GTK_Server/Database/CDBConnection.cs" Line="13" Column="6" />
-      <File FileName="GTK_Server/Database/CDBMemberRegisterManager.cs" Line="34" Column="59" />
-      <File FileName="GTK_Server/Handler/CDataHandler.cs" Line="1" Column="1" />
+      <File FileName="GTK_Server/Database/CDBManager.cs" Line="76" Column="71" />
+      <File FileName="GTK_Server/Database/CDBDao.cs" Line="1" Column="1" />
+      <File FileName="GTK_Server/Database/CDBLoginManager.cs" Line="22" Column="75" />
+      <File FileName="GTK_Server/Database/CDBMemberRegisterManager.cs" Line="38" Column="31" />
+      <File FileName="GTK_Server/Database/IDBConnection.cs" Line="1" Column="1" />
+      <File FileName="GTK_Server/Database/CDBConnection.cs" Line="9" Column="13" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -21,7 +17,7 @@
                 <Node name="FrameworkReferences" expanded="True" />
               </Node>
               <Node name="Database" expanded="True">
-                <Node name="CDBMemberRegisterManager.cs" selected="True" />
+                <Node name="CDBManager.cs" selected="True" />
               </Node>
               <Node name="Handler" expanded="True" />
               <Node name="Network" expanded="True" />

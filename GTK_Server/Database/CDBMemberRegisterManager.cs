@@ -13,8 +13,6 @@ namespace GTK_Server.Database
         private MemberRegister NewMember;
         private MemberRegisterResult Result;
 
-        private const string DBInfo = "Server=127.0.0.1;Database=DemoDB;Uid=root;Pwd=admin;";
-
         public CDBMemberRegisterManager(MemberRegister NewMember, IDBConnection DB_Conn) : base(DB_Conn)
         {
             NewMember = this.NewMember;
@@ -32,8 +30,12 @@ namespace GTK_Server.Database
          */
         private bool RegistMember(string ID, string Pass)
         {
+            if (ID == "" || Pass == ""){
+                setResultMsg("계정을 입력하세요.", false);
+                return false;
+            }
             MySqlCommand cmd;
-            MySqlConnection DB = new CDBConnection().makeConnection();
+            MySqlConnection DB = DB_conn.makeConnection();
             DB.Open();
 
             string s = "SELECT * FROM USER WHERE ID = @ID;";
@@ -44,9 +46,7 @@ namespace GTK_Server.Database
             {
                 dr.Close();
                 DB.Close();
-                Result.msg = new string("이미 존재하는 아이디 입니다.");
-                Result.packet_Type = PacketType.Member_REGISTER_RESULT;
-                Result.result = false;
+                setResultMsg("이미 존재하는 아이디 입니다.", false);
                 return false;
             }
             dr.Close();
@@ -68,9 +68,7 @@ namespace GTK_Server.Database
             if (RegistMember(NewMember.id_str, NewMember.pw_str))
             {
                 DM_setLog("New User Registered");
-                Result.msg = new string("회원 가입 성공");
-                Result.packet_Type = PacketType.Member_REGISTER_RESULT;
-                Result.result = true;
+                setResultMsg("회원 가입 성공", true);
             }
         }
 
@@ -91,6 +89,11 @@ namespace GTK_Server.Database
             SetResult();
             return Packet.Serialize(Result);
         }
-
+        private void setResultMsg(string msg, bool result)
+        {
+            Result.packet_Type = PacketType.Member_REGISTER_RESULT;
+            Result.result = result;
+            Result.msg = msg;
+        }
     }
 }
