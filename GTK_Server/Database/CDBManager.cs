@@ -37,7 +37,8 @@ namespace GTK_Server.Database
                 if (Session._packettype == PacketType.Login)
                 {
                     CDBLoginManager lgM = new CDBLoginManager(Session._buffer);
-                    CDataHandler.Handling_ResultDBData(Session._socket, lgM.GetResultByByte(), PacketType.Login_RESULT);
+                    Login lg = (Login)Packet.Deserialize(Session._buffer);
+                    CDataHandler.Handling_ResultDBData(Session._socket, lgM.GetResultByByte(), PacketType.Login_RESULT, lg.id_str);
                 }
                 if (Session._packettype == PacketType.Member_REGISTER)
                 {

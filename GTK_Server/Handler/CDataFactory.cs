@@ -18,7 +18,7 @@ namespace GTK_Server.Handler
         private static object Recv_Lock = new object();
         private static object Send_Lock = new object();
         private static object Database_Lock = new object();
-
+        private static object Clients_Lock = new object();
         private const int BUF_SIZE = 1024 * 4;
 
         private CDataFactory() { }
@@ -133,12 +133,19 @@ namespace GTK_Server.Handler
         }
 
         public void SetClients(CNetworkSession Session, string id){
-            Clients.Add(id, new CNetworkSession(Session._socket,Session._buffer));
+            lock (Clients_Lock)
+            {
+                Clients.Add(id, new CNetworkSession(Session._socket, Session._buffer));
+                Console.WriteLine("Added " + id);
+            }
         }
 
         public bool isLogined(CNetworkSession Session){
             string id = ((Login)Packet.Deserialize(Session._buffer)).id_str;
-            return Clients.ContainsKey(id) == false ? false : true ;
+            bool ret = false;
+            lock (Clients_Lock)
+                ret = Clients.ContainsKey(id);
+            return ret;
         }
 
         public void doHeartBeat() {
@@ -146,6 +153,7 @@ namespace GTK_Server.Handler
             HeartBeat heartBeat = new HeartBeat();
             DateTime Starttime = DateTime.Now;
             TimeSpan Limit = new TimeSpan(0, 10, 0);
+            lock(Clients_Lock)
             foreach(KeyValuePair<string,CNetworkSession> sessions in Clients) {
                 if (sessions.Value._socket.Connected){
                     TimeSpan diff = Starttime - sessions.Value._datetime;
