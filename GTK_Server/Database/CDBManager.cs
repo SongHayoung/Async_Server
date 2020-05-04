@@ -10,12 +10,6 @@ namespace GTK_Server.Database
      */
     public class CDBManager{
         private const int Buf_Size = 1024 * 4;
-        protected IDBConnection DB_conn;
-
-        public CDBManager(IDBConnection connection)
-        {
-            DB_conn = new CDBConnection();
-        }
 
         /*
          * Running Database Manager
@@ -33,24 +27,22 @@ namespace GTK_Server.Database
          */
         public static void Handling()
         {
+            CNetworkSession Session = null;
             while (Program.IsRunning())
             {
-                CNetworkSession Session = CDataHandler.Handling_GetDBData();
+                Session = CDataHandler.Handling_GetDBData();
                 if (Session == null)
                     continue;
                 DM_setLog("Working");
-                CNetworkSession Result = new CNetworkSession();
-                Result._socket = Session._socket;
-
                 if (Session._packettype == PacketType.Login)
                 {
                     CDBLoginManager lgM = new CDBLoginManager(Session._buffer);
-                    CDataHandler.Handling_ResultDBData(Result._socket, lgM.GetResultByByte(), PacketType.Login_RESULT);
+                    CDataHandler.Handling_ResultDBData(Session._socket, lgM.GetResultByByte(), PacketType.Login_RESULT);
                 }
                 if (Session._packettype == PacketType.Member_REGISTER)
                 {
                     CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Session._buffer);
-                    CDataHandler.Handling_ResultDBData(Result._socket, rgM.GetResultByByte(), PacketType.Member_REGISTER_RESULT);
+                    CDataHandler.Handling_ResultDBData(Session._socket, rgM.GetResultByByte(), PacketType.Member_REGISTER_RESULT);
                 }
             }
         }

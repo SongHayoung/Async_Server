@@ -132,12 +132,13 @@ namespace GTK_Server.Handler
             return Session;
         }
 
-        public bool SetClients(CNetworkSession Session){
-            string id = ((Login)Packet.Deserialize(Session._buffer)).id_str;
-            if (Clients.ContainsKey(id))
-                return false;
+        public void SetClients(CNetworkSession Session, string id){
             Clients.Add(id, new CNetworkSession(Session._socket,Session._buffer));
-            return true;
+        }
+
+        public bool isLogined(CNetworkSession Session){
+            string id = ((Login)Packet.Deserialize(Session._buffer)).id_str;
+            return Clients.ContainsKey(id) == false ? false : true ;
         }
 
         public void doHeartBeat() {

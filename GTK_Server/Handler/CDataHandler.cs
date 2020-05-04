@@ -50,13 +50,14 @@ namespace GTK_Server.Handler
             CNetworkSession RecvSession = new CNetworkSession(socket, buffer);
             CDataFactory PacketFactory = CDataFactory.GetDataFactory();
             if(RecvSession._packettype == PacketType.Login){
-                if (PacketFactory.SetClients(RecvSession))
+                if (!PacketFactory.isLogined(RecvSession)){
                     PacketFactory.SetRecvBuffer(RecvSession);
+                }
                 else{
                     LoginResult loginResult = new LoginResult();
                     loginResult.msg = "이미 접속이 되어있는 계정입니다";
                     buffer = Packet.Serialize(loginResult);
-                    CNetworkSession failSession = new CNetworkSession(socket, buffer,PacketType.Login_RESULT);
+                    CNetworkSession failSession = new CNetworkSession(socket, buffer, PacketType.Login_RESULT);
                     PacketFactory.SetSendBuffer(failSession);
                 }
             }
@@ -89,16 +90,28 @@ namespace GTK_Server.Handler
         {
             CDataFactory PacketFactory = CDataFactory.GetDataFactory();
             CNetworkSession Session = new CNetworkSession(s, buffer, packettype);
-            if(buffer.Length==0)
-            {
+            if (buffer.Length==0){
                 HM_log("No Data in Result Buffer From DataBase");
                 return;
             }
-            if (!PacketFactory.SetSendBuffer(Session))
-            {
+            if (!PacketFactory.SetSendBuffer(Session)){
                 HM_log("SetSendBuffer Error");
                 return;
             }
+        }
+
+        public static void Handling_ResultDBData(Socket s, byte[] buffer, PacketType packettype, string id)
+        {
+            CNetworkSession Session = new CNetworkSession(s, buffer, packettype);
+            if (packettype == PacketType.Login_RESULT){
+                LoginResult result = (LoginResult)Packet.Deserialize(buffer);
+                if (result.result)
+                {
+                    CDataFactory PacketFactory = CDataFactory.GetDataFactory();
+                    PacketFactory.SetClients(Session, id);
+                }
+            }
+            Handling_ResultDBData(Session);
         }
 
         private static void Handling_HeartBeat(object sender, System.Timers.ElapsedEventArgs e)

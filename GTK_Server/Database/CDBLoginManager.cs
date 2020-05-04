@@ -12,14 +12,14 @@ namespace GTK_Server.Database
     {
         private Login User;
         private LoginResult Result { get; set;}
-
-        public CDBLoginManager(Login User) : base()
+        
+        public CDBLoginManager(Login User)
         {
             this.User = User;
             Result = new LoginResult();
         }
 
-        public CDBLoginManager(byte[] User) : base()
+        public CDBLoginManager(byte[] User)
         {
             this.User = (Login)Packet.Deserialize(User);
             Result = new LoginResult();
