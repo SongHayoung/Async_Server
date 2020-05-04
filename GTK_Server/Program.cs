@@ -31,7 +31,8 @@ namespace GTK_Server
                 if (cmd.CompareTo("QUIT") == 0)
                     Running = false;
             }
-
+            CDataFactory dataFactory = CDataFactory.GetDataFactory();
+            dataFactory.freelock();
             NWManager.Join();
             DBManager.Join();
             HandlingManager.Join();

@@ -31,8 +31,7 @@ namespace GTK_Server.Handler
             while (Program.IsRunning())
             {
                 CNetworkSession Session = DataFactory.GetRecvBuffer();
-                if (Session == null)
-                    continue;
+                if (Session == null) continue;
                 HM_log("Working");
                 if (Session._packettype == PacketType.Login || Session._packettype == PacketType.Member_REGISTER)
                 {

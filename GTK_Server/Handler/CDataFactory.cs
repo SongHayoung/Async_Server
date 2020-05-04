@@ -26,7 +26,8 @@ namespace GTK_Server.Handler
         /*
          * Return PacketFactory
          */
-        public static CDataFactory GetDataFactory(){
+        public static CDataFactory GetDataFactory()
+        {
             return DataFactory;
         }
 
@@ -39,15 +40,17 @@ namespace GTK_Server.Handler
             lock (Recv_Lock)
             {
                 Recv_buffer.Enqueue(Recv);
+                System.Threading.Monitor.Pulse(Recv_Lock);
             }
             return true;
         }
 
         public bool SetRecvBuffer(CNetworkSession Session)
         {
-            lock(Recv_Lock)
+            lock (Recv_Lock)
             {
                 Recv_buffer.Enqueue(Session);
+                System.Threading.Monitor.Pulse(Recv_Lock);
             }
             return true;
         }
@@ -61,13 +64,14 @@ namespace GTK_Server.Handler
             CNetworkSession Session;
             lock (Recv_Lock)
             {
-                if (Recv_buffer.Count>0)
+                if (Recv_buffer.Count > 0)
                 {
                     Session = Recv_buffer.Dequeue();
                 }
                 else
                 {
                     Session = null;
+                    System.Threading.Monitor.Wait(Recv_Lock);
                 }
             }
             return Session;
@@ -78,9 +82,10 @@ namespace GTK_Server.Handler
          */
         public bool SetSendBuffer(CNetworkSession Session)
         {
-            lock(Send_Lock)
+            lock (Send_Lock)
             {
                 Send_buffer.Enqueue(Session);
+                System.Threading.Monitor.Pulse(Send_Lock);
             }
             return true;
         }
@@ -97,8 +102,10 @@ namespace GTK_Server.Handler
                 {
                     Session = Send_buffer.Dequeue();
                 }
-                else{
+                else
+                {
                     Session = null;
+                    System.Threading.Monitor.Wait(Send_Lock);
                 }
             }
             return Session;
@@ -109,9 +116,10 @@ namespace GTK_Server.Handler
          */
         public bool SetDatabseBuffer(CNetworkSession Session)
         {
-            lock(Database_Lock)
+            lock (Database_Lock)
             {
                 Database_Buffer.Enqueue(Session);
+                System.Threading.Monitor.Pulse(Database_Lock);
             }
             return true;
         }
@@ -119,27 +127,34 @@ namespace GTK_Server.Handler
         /*
          * get Session from database buffer
          */
-        public CNetworkSession GetDatabaseBuffer() {
+        public CNetworkSession GetDatabaseBuffer()
+        {
             CNetworkSession Session;
-            lock(Database_Lock){
-                if(Database_Buffer.Count>0) {
+            lock (Database_Lock)
+            {
+                if (Database_Buffer.Count > 0)
+                {
                     Session = Database_Buffer.Dequeue();
                 }
-                else {
+                else
+                {
                     Session = null;
+                    System.Threading.Monitor.Wait(Database_Lock);
                 }
             }
             return Session;
         }
 
-        public void SetClients(CNetworkSession Session, string id){
+        public void SetClients(CNetworkSession Session, string id)
+        {
             lock (Clients_Lock)
             {
                 Clients.Add(id, new CNetworkSession(Session._socket, Session._buffer));
             }
         }
 
-        public bool isLogined(CNetworkSession Session){
+        public bool isLogined(CNetworkSession Session)
+        {
             string id = ((Login)Packet.Deserialize(Session._buffer)).id_str;
             bool ret = false;
             lock (Clients_Lock)
@@ -147,38 +162,54 @@ namespace GTK_Server.Handler
             return ret;
         }
 
-        public void doHeartBeat() {
+        public void doHeartBeat()
+        {
             byte[] buffer;
             HeartBeat heartBeat = new HeartBeat();
             DateTime Starttime = DateTime.Now;
             TimeSpan Limit = new TimeSpan(0, 10, 0);
-            lock(Clients_Lock)
-            foreach(KeyValuePair<string,CNetworkSession> sessions in Clients) {
-                if (sessions.Value._socket.Connected){
-                    TimeSpan diff = Starttime - sessions.Value._datetime;
-                    if (TimeSpan.Compare(Limit,diff)==-1) {
+            lock (Clients_Lock)
+                foreach (KeyValuePair<string, CNetworkSession> sessions in Clients)
+                {
+                    if (sessions.Value._socket.Connected)
+                    {
+                        TimeSpan diff = Starttime - sessions.Value._datetime;
+                        if (TimeSpan.Compare(Limit, diff) == -1)
+                        {
+                            sessions.Value._socket.Close();
+                            Clients.Remove(sessions.Key);
+                        }
+                        else
+                        {
+                            heartBeat.id_str = sessions.Key;
+                            buffer = Packet.Serialize(heartBeat);
+                            if (!SetSendBuffer(new CNetworkSession(sessions.Value._socket, buffer, PacketType.Heart_Beat)))
+                                Console.WriteLine("DATA FACTORY : Heart Beat Error\n");
+                            else
+                                Console.WriteLine("DATA FACTORY : HeartBeat Sending " + sessions.Key + " " + sessions.Value._datetime.ToString("yyyy/MM/dd hh:mm:ss"));
+                        }
+                    }
+                    else
+                    {
                         sessions.Value._socket.Close();
                         Clients.Remove(sessions.Key);
                     }
-                    else {
-                        heartBeat.id_str = sessions.Key;
-                        buffer = Packet.Serialize(heartBeat);
-                        if (!SetSendBuffer(new CNetworkSession(sessions.Value._socket, buffer, PacketType.Heart_Beat)))
-                            Console.WriteLine("DATA FACTORY : Heart Beat Error\n");
-                        else
-                            Console.WriteLine("DATA FACTORY : HeartBeat Sending " + sessions.Key + " " + sessions.Value._datetime.ToString("yyyy/MM/dd hh:mm:ss"));
-                    }
                 }
-                else{
-                    sessions.Value._socket.Close();
-                    Clients.Remove(sessions.Key);
-                }
-            }
         }
-        public bool setHeartBeat(string id) {
+        public bool setHeartBeat(string id)
+        {
             Clients[id]._datetime = DateTime.Now;
             Console.WriteLine("Update Heart Beat time " + id + " " + Clients[id]._datetime.ToString("yyyy/MM/dd hh:mm:ss"));
             return true;
+        }
+        public void freelock()
+        {
+            lock (Database_Lock)
+                System.Threading.Monitor.Pulse(Database_Lock);
+            lock (Recv_Lock)
+                System.Threading.Monitor.Pulse(Recv_Lock);
+            lock (Send_Lock)
+                System.Threading.Monitor.Pulse(Send_Lock);
         }
     }
 }
