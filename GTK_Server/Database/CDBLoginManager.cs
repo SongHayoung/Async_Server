@@ -8,18 +8,18 @@ namespace GTK_Server.Database
     /*
      * this class helping user for login
      */
-    public class CDBLoginManager : CDBManager
+    public class CDBLoginManager : CDBDao
     {
         private Login User;
         private LoginResult Result { get; set;}
 
-        public CDBLoginManager(Login User, IDBConnection DB_Conn) : base(DB_conn)
+        public CDBLoginManager(Login User) : base()
         {
             this.User = User;
             Result = new LoginResult();
         }
 
-        public CDBLoginManager(byte[] User, IDBConnection DB_Conn) : base(DB_conn)
+        public CDBLoginManager(byte[] User) : base()
         {
             this.User = (Login)Packet.Deserialize(User);
             Result = new LoginResult();

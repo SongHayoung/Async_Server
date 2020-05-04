@@ -10,7 +10,7 @@ namespace GTK_Server.Database
      */
     public class CDBManager{
         private const int Buf_Size = 1024 * 4;
-        protected static IDBConnection DB_conn;
+        protected IDBConnection DB_conn;
 
         public CDBManager(IDBConnection connection)
         {
@@ -40,20 +40,17 @@ namespace GTK_Server.Database
                     continue;
                 DM_setLog("Working");
                 CNetworkSession Result = new CNetworkSession();
-                byte[] buffer;
                 Result._socket = Session._socket;
 
                 if (Session._packettype == PacketType.Login)
                 {
-                    CDBLoginManager lgM = new CDBLoginManager(Session._buffer,DB_conn);
-                    buffer = lgM.GetResultByByte();
-                    CDataHandler.Handling_ResultDBData(Result._socket, buffer, PacketType.Login_RESULT);
+                    CDBLoginManager lgM = new CDBLoginManager(Session._buffer);
+                    CDataHandler.Handling_ResultDBData(Result._socket, lgM.GetResultByByte(), PacketType.Login_RESULT);
                 }
                 if (Session._packettype == PacketType.Member_REGISTER)
                 {
-                    CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Session._buffer,DB_conn);
-                    buffer = rgM.GetResultByByte();
-                    CDataHandler.Handling_ResultDBData(Result._socket, buffer, PacketType.Member_REGISTER_RESULT);
+                    CDBMemberRegisterManager rgM = new CDBMemberRegisterManager(Session._buffer);
+                    CDataHandler.Handling_ResultDBData(Result._socket, rgM.GetResultByByte(), PacketType.Member_REGISTER_RESULT);
                 }
             }
         }
@@ -109,7 +106,7 @@ namespace GTK_Server.Database
                     cmd = new MySqlCommand(s, DB);
                     cmd.ExecuteNonQuery();
                     cmd.Parameters.Clear();
-                    s = new string("CREATE TABLE USER(ID VARCHAR(255) NOT NULL, Pass VARCHAR(255) NOT NULL); ");
+                    s = new string("CREATE TABLE USER(ID VARCHAR(255) NOT NULL PRIMARY KEY, Pass VARCHAR(255) NOT NULL); ");
                     cmd = new MySqlCommand(s, DB);
                     cmd.ExecuteNonQuery();
                     cmd.Parameters.Clear();

@@ -8,18 +8,18 @@ namespace GTK_Server.Database
     /*
      * this class helping user for register
      */
-    public class CDBMemberRegisterManager : CDBManager
+    public class CDBMemberRegisterManager : CDBDao
     {
         private MemberRegister NewMember;
         private MemberRegisterResult Result;
 
-        public CDBMemberRegisterManager(MemberRegister NewMember, IDBConnection DB_Conn) : base(DB_Conn)
+        public CDBMemberRegisterManager(MemberRegister NewMember) : base()
         {
             NewMember = this.NewMember;
             Result = new MemberRegisterResult();
         }
 
-        public CDBMemberRegisterManager(byte[] NewMember, IDBConnection DB_Conn) : base(DB_Conn)
+        public CDBMemberRegisterManager(byte[] NewMember) : base()
         {
             this.NewMember = (MemberRegister)Packet.Deserialize(NewMember);
             Result = new MemberRegisterResult();
