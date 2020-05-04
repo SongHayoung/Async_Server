@@ -56,6 +56,7 @@ namespace GTK_Server.Handler
                 else{
                     LoginResult loginResult = new LoginResult();
                     loginResult.msg = "이미 접속이 되어있는 계정입니다";
+                    loginResult.result = false;
                     buffer = Packet.Serialize(loginResult);
                     CNetworkSession failSession = new CNetworkSession(socket, buffer, PacketType.Login_RESULT);
                     PacketFactory.SetSendBuffer(failSession);

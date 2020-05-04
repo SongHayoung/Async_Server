@@ -136,7 +136,6 @@ namespace GTK_Server.Handler
             lock (Clients_Lock)
             {
                 Clients.Add(id, new CNetworkSession(Session._socket, Session._buffer));
-                Console.WriteLine("Added " + id);
             }
         }
 

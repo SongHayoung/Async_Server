@@ -34,23 +34,14 @@ namespace GTK_Server.Database
                 setResultMsg("계정을 입력하세요.", false);
                 return false;
             }
-            MySqlCommand cmd;
-            MySqlConnection DB = DB_conn.makeConnection();
-            DB.Open();
-
-            string s = "SELECT * FROM USER WHERE ID = @ID;";
-            cmd = new MySqlCommand(s, DB);
-            cmd.Parameters.AddWithValue("@ID", ID);
-            MySqlDataReader dr = cmd.ExecuteReader();
-            if (dr.Read())
-            {
-                dr.Close();
-                DB.Close();
+            if (invalidIDorPass(ID, Pass)){
                 setResultMsg("이미 존재하는 아이디 입니다.", false);
                 return false;
             }
-            dr.Close();
-            s = new string("INSERT INTO USER(ID,Pass)" + "VALUES(@ID,@Pass);");
+            MySqlCommand cmd;
+            MySqlConnection DB = DB_conn.makeConnection();
+            DB.Open();
+            string s = new string("INSERT INTO USER(ID,Pass)" + "VALUES(@ID,@Pass);");
             cmd = new MySqlCommand(s, DB);
             cmd.Parameters.AddWithValue("@ID", this.NewMember.id_str);
             cmd.Parameters.AddWithValue("@Pass", this.NewMember.pw_str);
@@ -65,8 +56,7 @@ namespace GTK_Server.Database
          */
         private void SetResult()
         {
-            if (RegistMember(NewMember.id_str, NewMember.pw_str))
-            {
+            if (RegistMember(NewMember.id_str, NewMember.pw_str)){
                 DM_setLog("New User Registered");
                 setResultMsg("회원 가입 성공", true);
             }
@@ -75,8 +65,7 @@ namespace GTK_Server.Database
         /*
          * this function return MemberRegisterResult member as MemberRegisterResult
          */
-        public MemberRegisterResult GetResultByRegisterResult()
-        {
+        public MemberRegisterResult GetResultByRegisterResult(){
             SetResult();
             return Result;
         }
