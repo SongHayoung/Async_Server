@@ -19,7 +19,7 @@ namespace GTK_Server
             Thread NWManager = new Thread(new ThreadStart(CNWManager.Run));
             Thread DBManager = new Thread(new ThreadStart(CDBManager.Run));
             Thread HandlingManager = new Thread(new ThreadStart(CDataHandler.Run));
-
+            Thread.CurrentThread.Name = "mainThread";
             NWManager.Start();
             DBManager.Start();
             HandlingManager.Start();

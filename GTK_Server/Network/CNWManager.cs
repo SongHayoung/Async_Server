@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Collections.Generic;
 
 using GTK_Server.Handler;
@@ -26,7 +27,8 @@ namespace GTK_Server.Network
          */
         public static void Run()
         {
-            Console.WriteLine("Netwrok Manager on Active");
+            Thread.CurrentThread.Name = "NWThread";
+            Console.WriteLine("Netwrok Manager on Active" + Thread.CurrentThread.Name);
             Server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint EndPoint = new IPEndPoint(IPAddress.Any, Port);
             Server.Bind(EndPoint);
@@ -46,13 +48,14 @@ namespace GTK_Server.Network
         {
             while(Program.IsRunning())
             {
-               /* foreach(Socket _Client in Clients)
-                {
-                    //if(!_Client.Connected)
-                    {
-                    //    Clients.Remove(_Client);
-                    }
-                }*/
+                /* foreach(Socket _Client in Clients)
+                 {
+                     //if(!_Client.Connected)
+                     {
+                     //    Clients.Remove(_Client);
+                     }
+                 }*/
+                Console.WriteLine(Thread.CurrentThread.Name);
                 CNetworkSession Session = CDataHandler.Handling_SendPacket();
                 if (Session == null)
                     continue;
@@ -79,7 +82,7 @@ namespace GTK_Server.Network
         private static void Accept(object sender, SocketAsyncEventArgs e)
         {
             Socket Client = e.AcceptSocket;
-
+            Thread.CurrentThread.Name = "something";
             //if(Clients!=null)
            // {
              //   Clients.Add(Client);
@@ -110,7 +113,7 @@ namespace GTK_Server.Network
             {
                 byte[] buffer = e.Buffer;
                 CDataHandler.Handling_RecvPacket(Client, buffer);
-                NWM_log("Receving Packet");
+                NWM_log("Receving Packet" + Thread.CurrentThread.Name + "AAAA");
                 CompleteAsync = Client.ReceiveAsync(e);
                 if (!CompleteAsync)
                 {   //this block is running at ReceiveAsync done as Sync

@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Sockets;
-
+using System.Threading;
 using GTK_Demo_Packet;
 namespace GTK_Server.Handler
 {
@@ -11,14 +12,13 @@ namespace GTK_Server.Handler
     public class CDataFactory
     {
         private static CDataFactory DataFactory = new CDataFactory();
-        private Queue<CNetworkSession> Recv_buffer = new Queue<CNetworkSession>();
-        private Queue<CNetworkSession> Send_buffer = new Queue<CNetworkSession>();
-        private Queue<CNetworkSession> Database_Buffer = new Queue<CNetworkSession>();
-        private static Dictionary<string, CNetworkSession> Clients = new Dictionary<string, CNetworkSession>();
-        private static object Recv_Lock = new object();
-        private static object Send_Lock = new object();
-        private static object Database_Lock = new object();
-        private static object Clients_Lock = new object();
+        private ConcurrentQueue<CNetworkSession> Recv_buffer = new ConcurrentQueue<CNetworkSession>();
+        private ConcurrentQueue<CNetworkSession> Send_buffer = new ConcurrentQueue<CNetworkSession>();
+        private ConcurrentQueue<CNetworkSession> Database_Buffer = new ConcurrentQueue<CNetworkSession>();
+        private static ConcurrentDictionary<string, CNetworkSession> Clients = new ConcurrentDictionary<string, CNetworkSession>();
+        private static object RecvObj = new object();
+        private static object SendObj = new object();
+        private static object DBObj = new object();
         private const int BUF_SIZE = 1024 * 4;
 
         private CDataFactory() { }
@@ -37,21 +37,15 @@ namespace GTK_Server.Handler
         public bool SetRecvBuffer(Socket socket, byte[] buffer)
         {
             CNetworkSession Recv = new CNetworkSession(socket, buffer);
-            lock (Recv_Lock)
-            {
-                Recv_buffer.Enqueue(Recv);
-                System.Threading.Monitor.Pulse(Recv_Lock);
-            }
+            Recv_buffer.Enqueue(Recv);
+            WakeThread(RecvObj);
             return true;
         }
 
         public bool SetRecvBuffer(CNetworkSession Session)
         {
-            lock (Recv_Lock)
-            {
-                Recv_buffer.Enqueue(Session);
-                System.Threading.Monitor.Pulse(Recv_Lock);
-            }
+            Recv_buffer.Enqueue(Session);
+            WakeThread(RecvObj);
             return true;
         }
 
@@ -61,19 +55,12 @@ namespace GTK_Server.Handler
          */
         public CNetworkSession GetRecvBuffer()
         {
-            CNetworkSession Session;
-            lock (Recv_Lock)
-            {
-                if (Recv_buffer.Count > 0)
-                {
-                    Session = Recv_buffer.Dequeue();
-                }
-                else
-                {
-                    Session = null;
-                    System.Threading.Monitor.Wait(Recv_Lock);
-                }
-            }
+            CNetworkSession Session = null;
+            if (Recv_buffer.Count > 0)
+                Recv_buffer.TryDequeue(out Session);
+            else
+                SleepThread(RecvObj);
+
             return Session;
         }
 
@@ -82,11 +69,8 @@ namespace GTK_Server.Handler
          */
         public bool SetSendBuffer(CNetworkSession Session)
         {
-            lock (Send_Lock)
-            {
-                Send_buffer.Enqueue(Session);
-                System.Threading.Monitor.Pulse(Send_Lock);
-            }
+            Send_buffer.Enqueue(Session);
+            WakeThread(SendObj);
             return true;
         }
 
@@ -95,19 +79,11 @@ namespace GTK_Server.Handler
          */
         public CNetworkSession GetSendBuffer()
         {
-            CNetworkSession Session;
-            lock (Send_Lock)
-            {
-                if (Send_buffer.Count > 0)
-                {
-                    Session = Send_buffer.Dequeue();
-                }
-                else
-                {
-                    Session = null;
-                    System.Threading.Monitor.Wait(Send_Lock);
-                }
-            }
+            CNetworkSession Session = null;
+            if (Send_buffer.Count > 0)
+                Send_buffer.TryDequeue(out Session);
+            else
+                SleepThread(SendObj);
             return Session;
         }
 
@@ -116,11 +92,9 @@ namespace GTK_Server.Handler
          */
         public bool SetDatabseBuffer(CNetworkSession Session)
         {
-            lock (Database_Lock)
-            {
-                Database_Buffer.Enqueue(Session);
-                System.Threading.Monitor.Pulse(Database_Lock);
-            }
+
+            Database_Buffer.Enqueue(Session);
+            WakeThread(DBObj);
             return true;
         }
 
@@ -129,37 +103,25 @@ namespace GTK_Server.Handler
          */
         public CNetworkSession GetDatabaseBuffer()
         {
-            CNetworkSession Session;
-            lock (Database_Lock)
-            {
-                if (Database_Buffer.Count > 0)
-                {
-                    Session = Database_Buffer.Dequeue();
-                }
-                else
-                {
-                    Session = null;
-                    System.Threading.Monitor.Wait(Database_Lock);
-                }
-            }
+            CNetworkSession Session = null;
+
+            if (Database_Buffer.Count > 0)
+                Database_Buffer.TryDequeue(out Session);
+            else
+                SleepThread(DBObj);
+
             return Session;
         }
 
-        public void SetClients(CNetworkSession Session, string id)
+        public bool SetClients(CNetworkSession Session, string id)
         {
-            lock (Clients_Lock)
-            {
-                Clients.Add(id, new CNetworkSession(Session._socket, Session._buffer));
-            }
+            return Clients.TryAdd(id, new CNetworkSession(Session._socket, Session._buffer));
         }
 
         public bool isLogined(CNetworkSession Session)
         {
             string id = ((Login)Packet.Deserialize(Session._buffer)).id_str;
-            bool ret = false;
-            lock (Clients_Lock)
-                ret = Clients.ContainsKey(id);
-            return ret;
+            return Clients.ContainsKey(id);
         }
 
         public void doHeartBeat()
@@ -168,48 +130,58 @@ namespace GTK_Server.Handler
             HeartBeat heartBeat = new HeartBeat();
             DateTime Starttime = DateTime.Now;
             TimeSpan Limit = new TimeSpan(0, 10, 0);
-            lock (Clients_Lock)
-                foreach (KeyValuePair<string, CNetworkSession> sessions in Clients)
+            CNetworkSession eraseSession;
+            foreach (KeyValuePair<string, CNetworkSession> sessions in Clients)
+            {
+                if (sessions.Value._socket.Connected)
                 {
-                    if (sessions.Value._socket.Connected)
+                    TimeSpan diff = Starttime - sessions.Value._datetime;
+                    if (TimeSpan.Compare(Limit, diff) == -1)
                     {
-                        TimeSpan diff = Starttime - sessions.Value._datetime;
-                        if (TimeSpan.Compare(Limit, diff) == -1)
-                        {
-                            sessions.Value._socket.Close();
-                            Clients.Remove(sessions.Key);
-                        }
-                        else
-                        {
-                            heartBeat.id_str = sessions.Key;
-                            buffer = Packet.Serialize(heartBeat);
-                            if (!SetSendBuffer(new CNetworkSession(sessions.Value._socket, buffer, PacketType.Heart_Beat)))
-                                Console.WriteLine("DATA FACTORY : Heart Beat Error\n");
-                            else
-                                Console.WriteLine("DATA FACTORY : HeartBeat Sending " + sessions.Key + " " + sessions.Value._datetime.ToString("yyyy/MM/dd hh:mm:ss"));
-                        }
+                        sessions.Value._socket.Close();
+                        Clients.TryRemove(sessions.Key, out eraseSession);
                     }
                     else
                     {
-                        sessions.Value._socket.Close();
-                        Clients.Remove(sessions.Key);
+                        heartBeat.id_str = sessions.Key;
+                        buffer = Packet.Serialize(heartBeat);
+                        if (!SetSendBuffer(new CNetworkSession(sessions.Value._socket, buffer, PacketType.Heart_Beat)))
+                            Console.WriteLine("DATA FACTORY : Heart Beat Error\n");
+                        else
+                            Console.WriteLine("DATA FACTORY : HeartBeat Sending " + sessions.Key + " " + sessions.Value._datetime.ToString("yyyy/MM/dd hh:mm:ss"));
                     }
                 }
+                else
+                {
+                    sessions.Value._socket.Close();
+                    Clients.Remove(sessions.Key, out eraseSession);
+                }
+            }
+
         }
         public bool setHeartBeat(string id)
         {
             Clients[id]._datetime = DateTime.Now;
             Console.WriteLine("Update Heart Beat time " + id + " " + Clients[id]._datetime.ToString("yyyy/MM/dd hh:mm:ss"));
+
             return true;
         }
         public void freelock()
         {
-            lock (Database_Lock)
-                System.Threading.Monitor.Pulse(Database_Lock);
-            lock (Recv_Lock)
-                System.Threading.Monitor.Pulse(Recv_Lock);
-            lock (Send_Lock)
-                System.Threading.Monitor.Pulse(Send_Lock);
+            WakeThread(DBObj);
+            WakeThread(RecvObj);
+            WakeThread(SendObj);
+        }
+        private void SleepThread(object sleeplock)
+        {
+            lock (sleeplock)
+                System.Threading.Monitor.Wait(sleeplock);
+        }
+
+        private void WakeThread(object wakelock)
+        {
+            lock (wakelock)
+                System.Threading.Monitor.Pulse(wakelock);
         }
     }
 }

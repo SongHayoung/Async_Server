@@ -1,6 +1,6 @@
 ﻿using System;
 using MySql.Data.MySqlClient;
-
+using System.Threading;
 using GTK_Server.Handler;
 using GTK_Demo_Packet;
 namespace GTK_Server.Database
@@ -18,6 +18,7 @@ namespace GTK_Server.Database
         {
             Console.WriteLine("Database Manager on Active");
             DB_Setting();
+            Thread.CurrentThread.Name = "DBThread";
             Handling();
             Console.WriteLine("Database Manager Join");
         }

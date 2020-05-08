@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
-
+using System.Threading;
 using GTK_Demo_Packet;
 namespace GTK_Server.Handler
 {
@@ -14,6 +14,7 @@ namespace GTK_Server.Handler
         public static void Run()
         {
             Console.WriteLine("Handling Manager on Active");
+            Thread.CurrentThread.Name = "DHThread";
             Handling();
             Console.WriteLine("Handling Manager Join");
         }
