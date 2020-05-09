@@ -153,6 +153,7 @@ namespace GTK_Server.Handler
                 }
                 else
                 {
+                    Console.WriteLine("connection losted");
                     sessions.Value._socket.Close();
                     Clients.Remove(sessions.Key, out eraseSession);
                 }
@@ -165,6 +166,19 @@ namespace GTK_Server.Handler
             Console.WriteLine("Update Heart Beat time " + id + " " + Clients[id]._datetime.ToString("yyyy/MM/dd hh:mm:ss"));
 
             return true;
+        }
+        public void removeUser(string id)
+        {
+            CNetworkSession removeSession = null;
+            if (Clients.TryRemove(id, out removeSession))
+            {
+                Console.WriteLine("User " + id + " Logout");
+                removeSession._socket.Close();
+            }
+            else
+            {
+                Console.WriteLine("User " + id + " Logout failed");
+            }
         }
         public void freelock()
         {

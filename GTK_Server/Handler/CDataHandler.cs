@@ -43,6 +43,11 @@ namespace GTK_Server.Handler
                     HM_log("REVEICE HEART BEAT FROM " + ((HeartBeat)Packet.Deserialize(Session._buffer)).id_str);
                     DataFactory.setHeartBeat(((HeartBeat)Packet.Deserialize(Session._buffer)).id_str);
                 }
+                else if(Session._packettype == PacketType.Close)
+                {
+                    HM_log(((ClosePacket)Packet.Deserialize(Session._buffer)).id_str + "Close");
+                    DataFactory.removeUser(((ClosePacket)Packet.Deserialize(Session._buffer)).id_str);
+                }
             }
         }
 

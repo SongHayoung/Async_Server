@@ -27,8 +27,7 @@ namespace GTK_Server.Network
          */
         public static void Run()
         {
-            Thread.CurrentThread.Name = "NWThread";
-            Console.WriteLine("Netwrok Manager on Active" + Thread.CurrentThread.Name);
+            NWM_log("Netwrok Manager on Active");
             Server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint EndPoint = new IPEndPoint(IPAddress.Any, Port);
             Server.Bind(EndPoint);
@@ -38,7 +37,7 @@ namespace GTK_Server.Network
             Asynce.Completed += new EventHandler<SocketAsyncEventArgs>(Accept);
             Server.AcceptAsync(Asynce);
             Handling();
-            Console.WriteLine("Network Manager Join");
+            NWM_log("Network Manager Join");
         }
 
         /*
@@ -113,7 +112,6 @@ namespace GTK_Server.Network
             {
                 byte[] buffer = e.Buffer;
                 CDataHandler.Handling_RecvPacket(Client, buffer);
-                NWM_log("Receving Packet" + Thread.CurrentThread.Name + "AAAA");
                 CompleteAsync = Client.ReceiveAsync(e);
                 if (!CompleteAsync)
                 {   //this block is running at ReceiveAsync done as Sync
